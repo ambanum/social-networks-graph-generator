@@ -1,1 +1,199 @@
+<img src="https://disinfo.quaidorsay.fr/assets/img/logo.png" width="140">
 
+# social-networks-graph-generator
+
+A simple classifier for twitter bot accounts based on Random Forest Algorithm
+
+See our [Methodology](./explanation.md) for graph generation
+
+## Install for common usage with pip
+
+Create a virtual env if needed
+
+```
+pip3 install virtualenv
+virtualenv -p python3 social-networks-graph-generator
+source social-networks-graph-generator/bin/activate
+```
+
+Install
+
+```
+pip3 install social-networks-graph-generator
+```
+
+Then you can launch `graphgenerator`
+
+## Install for development
+
+```
+git clone https://github.com/ambanum/social-networks-graph-generator
+cd social-networks-graph-generator
+```
+
+### Virtual env
+
+We strongly recommend that you use a virtual env for any development in python
+
+For this
+
+```
+pip3 install virtualenv
+virtualenv -p python3 social-networks-graph-generator
+source social-networks-graph-generator/bin/activate
+```
+
+### build on local
+
+If you do not want to develop but just use the software, do
+
+```
+./build.sh
+```
+
+Then you can use `graphgenerator` as an executable command
+
+### use for development with no build
+
+```
+pip3 install -r requirements.txt
+```
+
+Then you can use `./graphgenerator-dev.py` as an executable command
+
+# Usage
+
+To get the bot score probability of a user account, you can do so
+
+```
+# by search: this will use snscrape to get the data
+graphgenerator username
+graphgenerator "#hashtag"
+graphgenerator "#hashtag" --maxresults=1000
+graphgenerator "#hashtag" --since="2004-01-01" --maxresults=1000
+```
+
+## Example
+
+```
+graphgenerator ambnum
+```
+
+will return
+
+```json
+// TODO
+```
+
+## Using Docker
+
+### "regular" image
+
+```sh
+# build and run image yourself
+docker build --tag graphgenerator:latest -f Dockerfile .
+docker run -it -d --rm graphgenerator
+
+# or pull from Dockerhub
+#TODO
+
+# execute your command in the container
+docker exec -it graphgenerator graphgenerator --search ambnum
+```
+
+### ARM/M1 image (using conda)
+
+Note that you need to activate the conda env everytime you want to use `docker exec` which slows things down... See [this article](https://pythonspeed.com/articles/activate-conda-dockerfile) for a description of the issue.
+
+```sh
+# build and run image yourself
+docker build  --tag graphgenerator:latest -f Dockerfile.conda .
+docker run -it -d --name graphgenerator --rm graphgenerator:latest
+
+# execute your command in the container
+docker exec -it graphgenerator conda init bash && conda activate graphgenerator && graphgenerator --search ambnum
+```
+
+# Deployment
+
+This package is deployed on pypi as a package named `social-networks-graph-generator`. So that it can be installed using pip
+We are using `twine` for this
+
+```
+pip install twine
+npm install -g semver # for consistent package number generation
+pip install gitchangelog # to generate changelog automatically based on git commits
+```
+
+## Authentication on pyPi
+
+In order to not set your username and password again and again, you can set them using thos
+
+```
+keyring set https://upload.pypi.org/legacy/ username
+```
+
+## Deploy a new release
+
+A new release should come with a new version
+We are using semver to generate consistent package number
+
+```
+./release.sh
+# org
+./release.sh patch # for small fixes
+./release.sh minor # for minor features
+./release.sh major # for breaking changes
+```
+
+This will bum the version in `graphgenerator/version.py` and create a git tag
+
+# Troubleshooting
+
+## Illegal instruction: 4
+
+If your installation fail, it might be because you're not using a virtual environment :
+
+```
+pip3 install virtualenv
+virtualenv -p python3 social-networks-graph-generator
+source social-networks-graph-generator/bin/activate
+./build.sh
+```
+
+## ERROR: Could not detect requirement name...
+
+```
+ERROR: Could not detect requirement name for 'git+https://github.com/JustAnotherArchivist/snscrape.git', please specify one with #egg=your_package_name
+```
+
+In requirements.txt file, you have to add `#egg=your_package_name` to github repository url.
+In this case, replace `git+https://github.com/JustAnotherArchivist/snscrape.git`by `git+https://github.com/JustAnotherArchivist/snscrape.git#egg=snscrape`
+
+## Install on M1/ARM processors
+
+As of today, the easiest way to install the package and its dependencies on a M1/ARM chip is via [`conda`](https://conda.io/)
+
+#### Install `conda`
+
+We recommend [downloading and installing](https://docs.conda.io/en/latest/miniconda.html#installing) the python 3.9 version of conda. The `miniconda` distribution is enough for our purpose.
+
+#### Navigate to root of repository and pull the latest changes
+
+#### Create a new conda environment
+
+`conda env create --name graphgenerator python=3.9 -f environment.yml`
+
+and activate it :
+
+`conda activate graphgenerator`
+
+#### Install graphgenerator
+
+`python -m pip install -e .`
+
+#### Check that it worked
+
+```sh
+graphgenerator --help
+```

@@ -1,0 +1,28 @@
+FROM continuumio/miniconda3:latest
+
+ENV CONDA_DEFAULT_ENV graphgenerator
+
+# Create folder and user
+RUN adduser ambnum && \
+    chmod 777 /home/ambnum && \
+    chown ambnum:ambnum /home/ambnum
+
+# # update package repositories
+RUN apt-get update -y
+
+# install code
+WORKDIR /home/ambnum
+
+COPY ./environment.yml environment.yml
+
+# Initialize conda in bash config fiiles:
+RUN conda init bash
+
+RUN conda env create --name graphgenerator python=3.9 -f environment.yml
+
+# Activate the environment
+RUN echo "conda activate graphgenerator" > ~/.bashrc
+
+SHELL [ "/bin/bash", "--login", "-c" ]
+
+RUN pip install social-networks-graph-generator

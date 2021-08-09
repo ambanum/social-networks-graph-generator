@@ -1,0 +1,5 @@
+click==8.0.1
+pandas==1.2.5
+networkx
+tqdm
+-e git+https://github.com/JustAnotherArchivist/snscrape.git#egg=snscrape

@@ -1,0 +1,13 @@
+name: graphgenerator
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - click=8.0.1
+  - tqdm
+  - pandas=1.2.5
+  - pip=21.1.3
+  - python=3.9.5
+  - networkx
+  - pip:
+      - "--editable=git+https://github.com/JustAnotherArchivist/snscrape.git#egg=snscrape"
