@@ -1,0 +1,9 @@
+__pycache__
+build
+dist
+.eggs
+*.egg-info
+social-networks-graph-generator
+graphgenerator/version.py.bak
+graphgenerator/.!*
+
