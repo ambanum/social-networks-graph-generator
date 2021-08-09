@@ -9,30 +9,19 @@ import pandas as pd
 from tqdm import tqdm
 import networkx as nx
 
-from graphgenerator import config
 
-
-def research_tweet(search, since="2004-01-01", maxresults=4000, verbose=False):
-    tmp_file = config.TMP_DIR / "search.json"
-
-    cmd = 'snscrape --jsonl %s %s %s twitter-search "%s" > "%s"' % (
-        "--progress" if verbose else "",
-        "--max-results=%s" % (maxresults) if maxresults else "",
-        "--since=%s" % (since) if since else "",
-        search,
-        tmp_file,
+def research_tweet(search, date="2004-01-01", maxresults=4000):
+    os.system(
+        f'snscrape --jsonl --progress --max-results {maxresults} --since {date} twitter-search "{search}" > temporary.json'
     )
-    if verbose:
-        print(cmd)
-    os.system(cmd)
-    tweets = pd.read_json(tmp_file, lines=True)
-    os.remove(tmp_file)
+    tweets = pd.read_json("temporary.json", lines=True)
     return tweets
 
 
 def transformation_dataframe(dataframe):
     """Select the necessary information from the dataframe in entry and add an influence columns which is the sum of reply, retweet, like and quote counts
     Add a user column with all the required information"""
+
     reduced_dataframe = dataframe[
         [
             "content",
@@ -44,20 +33,28 @@ def transformation_dataframe(dataframe):
             "retweetCount",
             "likeCount",
             "quoteCount",
-            # TODO Those columns are making the graph fail
-            # "inReplyToUserId",
-            # "inReplyToStatusId",
+            "inReplyToUserId",
+            "inReplyToStatusId",
         ]
     ]
+
     influence_dataframe = pd.DataFrame(
         reduced_dataframe.loc[
             :, ["replyCount", "retweetCount", "likeCount", "quoteCount"]
         ].sum(axis=1),
         columns=["influence"],
     )
+
     user_list = list(dataframe["user"])
     user_dataframe = pd.DataFrame(user_list)[
-        ["username", "displayname", "id", "followersCount", "location"]
+        [
+            "username",
+            "displayname",
+            "id",
+            "followersCount",
+            "location",
+            "profileImageUrl",
+        ]
     ]
     user_dataframe.columns = [
         "username",
@@ -65,47 +62,98 @@ def transformation_dataframe(dataframe):
         "userid",
         "followersCount",
         "location",
+        "profileImageUrl",
     ]
 
     return pd.concat([reduced_dataframe, influence_dataframe, user_dataframe], axis=1)
 
 
-def retweeter_graph(dataframe, retweets_minimal=10):
-    """Return the retweeter graph (as a networkx graph)
-    Parameters: retweets_minimal is the minimal number of tweets for which the twitter_api will fetch the list of retweeters"""
-    retweet_dataframe = dataframe[dataframe["retweetCount"] > retweets_minimal]
+def retweeters(content):
+    #The next lines remove some characters from the content analyze
+    #This is because some characters are not correctly interpreted in the twitter search
 
-    G = nx.Graph()
+    def replace(string) :
+        for i in '''«»?!"-''' :
+            string=string.replace(i, " ")
+        return(string)
+    content=replace(content)
+    content=content.replace("\n"," ")
+    
+    os.system(
+        f'snscrape --jsonl twitter-search "filter:nativeretweets {content}" > retweets.json'
+    )
+    
+    s = pd.read_json("retweets.json", lines=True)
+    username = list(s["user"].apply(lambda x: x["username"]))
+    displayname = list(s["user"].apply(lambda x: x["displayname"]))
+    image_url = list(s["user"].apply(lambda x: x["profileImageUrl"]))
+    return username, displayname, image_url
+
+
+def retweeter_graph(dataframe, retweet_min=10):
+    """Return the retweeter graph (as a networkx graph)"""
+
     problem_list = []
-    # Adding Nodes
-    for i, j, k in zip(
-        retweet_dataframe["username"],
-        retweet_dataframe["followersCount"],
-        retweet_dataframe["influence"],
+    G = nx.Graph()
+    node_dataframe = (
+        dataframe[["influence", "username", "displayname", "profileImageUrl"]]
+        .groupby(["username", "displayname", "profileImageUrl"])
+        .sum(["influence"])
+        .reset_index()
+    )
+
+    for username, displayname, influence, image_url in zip(
+        node_dataframe["username"],
+        node_dataframe["displayname"],
+        node_dataframe["influence"],
+        node_dataframe["profileImageUrl"],
     ):
-        G.add_node(i, Followers=j, Influence=k)
-
-    # TODO use tqdm only if verbose mode is on
-    # tqdm(
-    #     zip(retweet_dataframe["id"], retweet_dataframe["username"])
-    # )
-
-    for tweet_id, retweeted_username in zip(retweet_dataframe["id"], retweet_dataframe["username"]):
-        try:
-            retweets_id = api.get_retweeter_ids(tweet_id)
-            user_objects = api.lookup_users(user_id=retweets_id)
-            for user in user_objects:
-                retweeter_username = user.screen_name
-                G.add_edge(retweeted_username, retweeter_username)
+        G.add_node(
+            username,
+            Displayname=displayname,
+            Influence=influence,
+            Image=image_url,
+            label="Tweeting",
+        )
+    
+    retweet_dataframe=dataframe[dataframe["retweetCount"] > retweet_min]
+    for content,name in tqdm(zip(list(retweet_dataframe["content"]), list(retweet_dataframe["username"]))):
+        try :
+            (
+                retweeter_i_username,
+                retweeter_i_displayname,
+                retweeter_i_image_url,
+            ) = retweeters(content)
+            for username, displayname, image_url in zip(
+                retweeter_i_username, retweeter_i_displayname, retweeter_i_image_url
+            ):
+                if username not in G.nodes:
+                    G.add_node(
+                        username,
+                        Displayname=displayname,
+                        Image=image_url,
+                        label="Not Tweeting",
+                    )
+            for username in retweeter_i_username:
+                G.add_edge(name, username)
         except:
-            problem_list.append(tweet_id)
+            #print('not ok', content)
+            problem_list.append(content)
+    return G, problem_list
 
-    return (G, problem_list)
 
-
-def graph_cli(search, since_date="2004-01-01", maxresults=4000, retweets_minimal=10,verbose=False):
-    tweets = research_tweet(search, since_date, maxresults,verbose)
+def graph_cli_json(search, since_date="2004-01-01", maxresults=4000, retweet_min=10):
+    tweets = research_tweet(search, since_date, maxresults)
     tweets_transformed = transformation_dataframe(tweets)
     # The last line return a json compatible (with nx.node_link_data) representation of the retweet_graph -
     # The result of retweeter_graph being a list, it selects only the graph thus the 0
-    return nx.node_link_data(retweeter_graph(tweets_transformed, retweets_minimal)[0])
+    return nx.node_link_data(retweeter_graph(tweets_transformed, retweet_min=10)[0])
+
+def graph_cli_gexf(search, since_date="2004-01-01", maxresults=4000, retweet_min=10):
+    tweets = research_tweet(search, since_date, maxresults)
+    tweets_transformed = transformation_dataframe(tweets)
+    G,L=retweeter_graph(tweets_transformed, retweet_min=10)
+    print('ok')
+    nx.write_gexf(G, 'graph.gexf')
+    print('\nok2')
+    
