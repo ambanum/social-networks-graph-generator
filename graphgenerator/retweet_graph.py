@@ -12,15 +12,18 @@ import networkx as nx
 from graphgenerator import config
 
 
-def research_tweet(search, since="2004-01-01", maxresults=4000):
+def research_tweet(search, since="2004-01-01", maxresults=4000, verbose=False):
     tmp_file = config.TMP_DIR / "search.json"
-    cmd = 'snscrape --jsonl --progress %s %s twitter-search "%s" > "%s"' % (
+
+    cmd = 'snscrape --jsonl %s %s %s twitter-search "%s" > "%s"' % (
+        "--progress" if verbose else "",
         "--max-results=%s" % (maxresults) if maxresults else "",
         "--since=%s" % (since) if since else "",
         search,
         tmp_file,
     )
-    print(cmd)
+    if verbose:
+        print(cmd)
     os.system(cmd)
     tweets = pd.read_json(tmp_file, lines=True)
     os.remove(tmp_file)
@@ -82,9 +85,12 @@ def retweeter_graph(dataframe, retweets_minimal=10):
     ):
         G.add_node(i, Followers=j, Influence=k)
 
-    for tweet_id, retweeted_username in tqdm(
-        zip(retweet_dataframe["id"], retweet_dataframe["username"])
-    ):
+    # TODO use tqdm only if verbose mode is on
+    # tqdm(
+    #     zip(retweet_dataframe["id"], retweet_dataframe["username"])
+    # )
+
+    for tweet_id, retweeted_username in zip(retweet_dataframe["id"], retweet_dataframe["username"]):
         try:
             retweets_id = api.get_retweeter_ids(tweet_id)
             user_objects = api.lookup_users(user_id=retweets_id)
@@ -97,8 +103,8 @@ def retweeter_graph(dataframe, retweets_minimal=10):
     return (G, problem_list)
 
 
-def graph_cli(search, since_date="2004-01-01", maxresults=4000, retweets_minimal=10):
-    tweets = research_tweet(search, since_date, maxresults)
+def graph_cli(search, since_date="2004-01-01", maxresults=4000, retweets_minimal=10,verbose=False):
+    tweets = research_tweet(search, since_date, maxresults,verbose)
     tweets_transformed = transformation_dataframe(tweets)
     # The last line return a json compatible (with nx.node_link_data) representation of the retweet_graph -
     # The result of retweeter_graph being a list, it selects only the graph thus the 0

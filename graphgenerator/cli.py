@@ -23,8 +23,14 @@ from graphgenerator.version import __version__
     "--retweets_minimal",
     help="The minimal number of retweets a tweet must have for us to fetch its retweeters",
 )
+@click.option(
+    "-vvv",
+    "--verbose",
+    help="display debug logs. CAUTION: can't be used with jq as result will not be only valid json",
+    is_flag=True,
+)
 @click.option("-v", "--version", is_flag=True, help="get version of the package")
-def main(search, since, maxresults, retweets_minimal, version):
+def main(search, since, maxresults, retweets_minimal, version,verbose):
     """Command line utility that print the json of a graph constructed from a hashtag or expression
     The graph is constructed in the following way :
     We fetch the tweets according to the options
@@ -40,6 +46,7 @@ def main(search, since, maxresults, retweets_minimal, version):
                 since_date="" if since is None else since,
                 maxresults="" if maxresults is None else maxresults,
                 retweets_minimal=retweets_minimal,
+                verbose=verbose,
             )
         )
 
