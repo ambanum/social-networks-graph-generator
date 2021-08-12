@@ -19,8 +19,6 @@ user_features_to_extract = [
 
 attention_columns = ["replyCount", "retweetCount", "likeCount", "quoteCount"]
 
-
-
 def research_tweet(
     search, since=None, maxresults=None, verbose=False, minretweets=None
 ):
@@ -36,18 +34,17 @@ def research_tweet(
             raise Exception("since must be a string")
         cmd += f" --since {since} "
 
-    cmd += f" twitter-search include:nativeretweets{search} > temporary.json"
-
+    cmd += f'''twitter-search "include:nativeretweets {search}" > temporary.json'''
     os.system(cmd)
     tweets = pd.read_json("temporary.json", lines=True)
     os.remove("temporary.json")
     return tweets
 
+
 def extract_user_info(dataframe):
     for i in user_features_to_extract:
         dataframe[i] = dataframe["user"].apply(lambda x: x[i])
     return dataframe
-
 
 def transformation_user_dataframe(dataframe):
     """This function takes in entry a dataframe corresponding to a snscrape research and return
@@ -174,9 +171,31 @@ def transformation_quoted_dataframe(dataframe):
     quoted_dataframe["category"] = 'quote'
     return quoted_dataframe
 
-def retweeter_graph(dataframe, graph=None, remove=None):
-    """Return the retweeter graph (as a networkx graph)
-    if remove : will remove the nodes whose degree is less than 2"""
+def remove_degree_less_than(graph, n) :
+    iter_nodes = graph.degree()
+    for node_name, node_degree in list(iter_nodes) :
+        if node_degree < n :
+            graph.remove_node(node_name)
+            #also removes the edges
+            
+def retweeter_graph(dataframe, graph=None, remove=None, community=False, json=False):
+    """Return the retweet graph given a dataframe of a search query using snscrape
+    
+    if a graph is given in entry, it will fuse the graph with the dataframe with the attributes of the new_graph
+    taking precedence over the existing attributes
+    
+    if remove (int): will remove the nodes whose degree is less than the remove argument
+    
+    if community (boolean) : will find community using Clauset-Newman-Moore greedy modularity maximization (see networkx doc)
+    This will slow the process a little.
+    
+    if json(boolean) : will return the graph in the json format
+    There are multiples format however see : https://networkx.org/documentation/stable/reference/readwrite/json_graph.html
+    We choose node link data format
+    """
+    
+    #TODO: Add botscore 
+    #TODO2: Manage dates in a better way
 
     if graph:
         if not isinstance(graph, nx.Graph()):
@@ -194,30 +213,34 @@ def retweeter_graph(dataframe, graph=None, remove=None):
         target="retweetedUsername",
         edge_attr=True,
     )
-
+    
     user_dataframe = transformation_user_dataframe(dataframe)
     # We have to transform the dataframe in a dictionnary of dictionnary in order to use it as an argument for
     # the node definition in networkx
     node_dictionnary = user_dataframe.to_dict(orient="index")
     nx.set_node_attributes(new_graph, node_dictionnary)
-    
     # We fuse the last graphs together
     # Where the attributes conflict, it uses the attributes of the second argument ; for the date of the edges it will thus take the last
 
     final_graph = nx.algorithms.operators.binary.compose(graph, new_graph)
-    
-    def remove_degree_less_than(graph, n) :
-        iter_nodes = graph.degree()
-        for node_name, node_degree in list(iter_nodes) :
-            if node_degree < n :
-                graph.remove_node(node_name)
-                #also removes the edges
-            
-    if remove :
-        if not isinstance(remove, int) :
+
+    if remove:
+        if not isinstance(remove, int):
             raise Exception("remove must be an integer")
         remove_degree_less_than(final_graph, remove)
-        
-        
+    
+    if community :
+        #We first compute the modularity classes
+        list_communities = nx.algorithms.community.modularity_max.greedy_modularity_communities(final_graph)
+        #We then create a dictionnary of dictionnary to fill as an argument for nx.set_node_attributes
+        community_dic ={}
+        for i,e in enumerate(list_communities) :
+            sub_dic = {'community' : i} 
+            for s in e :
+                community_dic[s] = sub_dic
+        nx.classes.function.set_node_attributes(final_graph,community_dic)
+    
+    if json :
+        return nx.node_link_data(final_graph)
 
     return final_graph
