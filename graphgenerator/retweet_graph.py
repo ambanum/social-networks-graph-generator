@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 import networkx as nx
+pd.options.mode.chained_assignment = None  # default='warn'
 
-#Remove undue warnings
-pd.options.mode.chained_assignment = None
+from bot_score_for_graph import proba_bot
 
-#Those two list of strings are useful afterwards to find information
+
 user_features_to_extract = [
     "username",
     "displayname",
@@ -13,8 +13,12 @@ user_features_to_extract = [
     "followersCount",
     "friendsCount",
     "statusesCount",
+    "listedCount",
     "favouritesCount",
     "profileImageUrl",
+    "description",
+    "profileBannerUrl", 
+    'created'
 ]
 
 attention_columns = ["replyCount", "retweetCount", "likeCount", "quoteCount"]
@@ -34,7 +38,7 @@ def research_tweet(
             raise Exception("since must be a string")
         cmd += f" --since {since} "
 
-    cmd += f'''twitter-search "include:nativeretweets {search}" > temporary.json'''
+    cmd += f''' twitter-search "include:nativeretweets {search}" > temporary.json'''
     os.system(cmd)
     tweets = pd.read_json("temporary.json", lines=True)
     os.remove("temporary.json")
@@ -45,6 +49,7 @@ def extract_user_info(dataframe):
     for i in user_features_to_extract:
         dataframe[i] = dataframe["user"].apply(lambda x: x[i])
     return dataframe
+
 
 def transformation_user_dataframe(dataframe):
     """This function takes in entry a dataframe corresponding to a snscrape research and return
@@ -102,11 +107,11 @@ def transformation_user_dataframe(dataframe):
 
     final_dataframe = pd.concat(
         [not_retweet_user_dataframe, retweeter_user_dataframe, retweeted_user_dataframe, quoted_user_dataframe]
-    )
+    )    
     final_dataframe = final_dataframe[
-        ["id", "date"] + user_features_to_extract + attention_columns
+        ["user","id", "date"] + user_features_to_extract + attention_columns
     ]
-    # We change the hour to be importable in gefx :
+    # We change the hour so that the dataframe is usable in gefx :
     final_dataframe["date"] = final_dataframe["date"].apply(
         lambda x: (x.round(freq="H")).strftime("%Y-%m-%d-%H")
     )
@@ -120,7 +125,13 @@ def transformation_user_dataframe(dataframe):
         aggregation_functions[i] = 'sum'
         
     final_dataframe= final_dataframe.groupby(final_dataframe['username']).agg(aggregation_functions)
-    final_dataframe=final_dataframe.drop(columns=['id'])
+    # We finally compute the bot_score
+    final_dataframe['bot_score'] = proba_bot(final_dataframe)
+    final_dataframe=final_dataframe.drop(columns=['id', 'profile_banner_url', 'created_at'])
+
+    
+    
+    
     return final_dataframe
 
 def transformation_retweet_dataframe(dataframe):
