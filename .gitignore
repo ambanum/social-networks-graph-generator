@@ -6,4 +6,4 @@ dist
 social-networks-graph-generator
 graphgenerator/version.py.bak
 graphgenerator/.!*
-
+.idea/
