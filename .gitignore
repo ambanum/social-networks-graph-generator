@@ -7,3 +7,4 @@ social-networks-graph-generator
 graphgenerator/version.py.bak
 graphgenerator/.!*
 .idea/
+.ipynb_checkpoints/
