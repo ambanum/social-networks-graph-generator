@@ -1,14 +1,13 @@
 import pandas as pd
 from datetime import datetime
-import pytz
 import json
 import networkx as nx
 import snscrape.modules.twitter as sntwitter
-tz = pytz.timezone('UTC')
 
-from dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
-from tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
-from toolbox import layout_functions
+from graphgenerator.src.utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
+from graphgenerator.src.utils.tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
+from graphgenerator.src.utils.toolbox import layout_functions
+from graphgenerator.config import tz
 
 
 class GraphBuilder:
@@ -70,7 +69,7 @@ class GraphBuilder:
         del self.nodes_RT
 
         self.nodes = self.nodes.sort_values("date", ascending=True)
-        self.nodes = self.nodes.groupby(["id", "username", "size"]).agg(
+        self.nodes = self.nodes.groupby(["id", "label", "size"]).agg(
             {col: lambda x: list(x) for col in ["url", "date", "tweet_id", "retweetCount", "role"]}
         ).reset_index()
 

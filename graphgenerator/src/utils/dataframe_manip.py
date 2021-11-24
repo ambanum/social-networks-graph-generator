@@ -3,6 +3,7 @@ import pandas as pd
 
 def clean_edges(edges_list):
     edges = pd.DataFrame(edges_list)
+    edges = edges[edges["source"] != edges["target"]]
     edges["size"] = 1
     edges = edges.groupby(["source", "target"]).agg(
         {"date": lambda x: list(x), "tweet_id": lambda x: list(x), "size": lambda x: sum(x)}
@@ -22,7 +23,7 @@ def clean_nodes_RT(nodes_RT_list):
 def clean_nodes_tweet(nodes_tweet_list):
     nodes_tweet = pd.DataFrame(nodes_tweet_list)
     nodes_tweet['size'] = nodes_tweet.groupby(
-        ['id', 'username'])['retweetCount'].transform('sum')
+        ['id', 'label'])['retweetCount'].transform('sum')
     nodes_tweet["role"] = "Tweet"
     return nodes_tweet
 
@@ -36,6 +37,6 @@ def create_json_output(nodes, edges, position):
     edges["metadata"] = edges.apply(lambda x: {col: x[col] for col in ['date', "tweet_id"]}, axis=1)
     output = {
         "edges": edges[['source', 'target', 'size', 'label', 'metadata']].to_dict('records'),
-        "nodes": nodes[['id', 'username', 'size', 'metadata']].to_dict('records')
+        "nodes": nodes[['id', 'label', 'size', 'metadata', 'x', 'y']].to_dict('records')
     }
     return output
