@@ -11,6 +11,12 @@ import click
 from version import __version__
 from custom_classes.GraphBuilder import GraphBuilder
 
+#@click.option(
+#    "-vvv",
+#    "--verbose",-v
+#    help="display debug logs. CAUTION: can't be used with jq as result will not be only valid json",
+#    is_flag=True,
+#)
 
 @click.command()
 @click.argument(
@@ -31,13 +37,6 @@ from custom_classes.GraphBuilder import GraphBuilder
 @click.option(
     "-o", "--output_path", help="Path where to export the final Json"
 )
-
-#@click.option(
-#    "-vvv",
-#    "--verbose",-v
-#    help="display debug logs. CAUTION: can't be used with jq as result will not be only valid json",
-#    is_flag=True,
-#)
 @click.option("-v", "--version", is_flag=True, help="get version of the package")
 def main(version, keyword, output_path, minretweets=10, since="2021-11-22", maxresults=None, algo="spring"):
     """

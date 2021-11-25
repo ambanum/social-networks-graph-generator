@@ -5,8 +5,9 @@ def clean_edges(edges_list):
     edges = pd.DataFrame(edges_list)
     edges = edges[edges["source"] != edges["target"]]
     edges["size"] = 1
-    edges = edges.groupby(["source", "target", "label"]).agg(
-        {"date": lambda x: list(x), "tweet_id": lambda x: list(x), "tweets": lambda x: list(x), "size": lambda x: sum(x)}
+    edges = edges.groupby(["source", "target"]).agg(
+        {"date": lambda x: list(x), "tweet_id": lambda x: list(x), "tweets": lambda x: list(x), "size": lambda x: sum(x),
+         "label": lambda x: list(x)[0]}
     ).reset_index()
     edges["type"] = "arrow"
     edges = edges.reset_index().rename(columns= {"index": "id"})
@@ -17,7 +18,6 @@ def clean_edges(edges_list):
 def clean_nodes_RT(nodes_RT_list):
     nodes_RT = pd.DataFrame(nodes_RT_list)
     nodes_RT = nodes_RT.drop_duplicates()
-    nodes_RT["retweetCount"] = 0
     return nodes_RT
 
 
