@@ -5,9 +5,9 @@ import networkx as nx
 import snscrape.modules.twitter as sntwitter
 
 
-from src.utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
-from src.utils.tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
-from src.utils.toolbox import layout_functions
+from utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
+from utils.tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
+from utils.toolbox import layout_functions
 from config import tz
 
 

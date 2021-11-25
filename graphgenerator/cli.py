@@ -9,7 +9,7 @@ Created on Thu Jul 15 17:22:29 2021
 import click
 
 from version import __version__
-from src.custom_classes.GraphBuilder import GraphBuilder
+from custom_classes.GraphBuilder import GraphBuilder
 
 
 @click.command()
