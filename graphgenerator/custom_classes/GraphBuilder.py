@@ -70,11 +70,15 @@ class GraphBuilder:
         self.nodes = pd.concat([self.nodes_tweet, self.nodes_RT])
         del self.nodes_tweet
         del self.nodes_RT
+        self.nodes['size'] = self.nodes.groupby(
+            ['id', 'label'])['retweetCount'].transform('sum')
 
         self.nodes = self.nodes.sort_values("date", ascending=True)
-        self.nodes = self.nodes.groupby(["id", "label", "size"]).agg(
-            {col: lambda x: list(x) for col in ["url", "date", "tweet_id", "retweetCount", "role"]}
+        self.nodes = self.nodes.groupby(["id", "label", "size", "from"]).agg(
+            {col: lambda x: list(x) for col in ["tweets", "date", "retweetCount"]}
         ).reset_index()
+        self.nodes["from"] = "quoted"
+        self.nodes.loc[self.nodes["size"] >= 1, "from"] = "original"
 
     def create_graph(self, algo):
         """

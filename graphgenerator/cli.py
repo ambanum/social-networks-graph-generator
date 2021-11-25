@@ -39,7 +39,7 @@ from custom_classes.GraphBuilder import GraphBuilder
 #    is_flag=True,
 #)
 @click.option("-v", "--version", is_flag=True, help="get version of the package")
-def main(version, keyword, output_path, minretweets=10, since="2021-11-22", maxresults="100", algo="spring"):
+def main(version, keyword, output_path, minretweets=10, since="2021-11-22", maxresults=None, algo="spring"):
     """
     Command line utility that export the json of a graph constructed from a hashtag or expression
     """
