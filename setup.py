@@ -21,9 +21,12 @@ setuptools.setup(
     use_scm_version=False,
     include_package_data=True,
     install_requires=[
-        "click==8.0.1",
-        "joblib==1.0.1",
+        "setuptools-scm==6.3.2",
+        "networkx==2.6.3",
         "pandas==1.2.5",
+        "click==8.0.1",
+        "pytz==2021.3",
+        "matplotlib==3.5.0"
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",

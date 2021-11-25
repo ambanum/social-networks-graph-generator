@@ -2,8 +2,7 @@
 
 # social-networks-graph-generator
 
-A simple classifier for twitter bot accounts based on Random Forest Algorithm
-
+A graph generator to visualise links between twitter accounts for a specific keyword or hashtag
 See our [Methodology](./explanation.md) for graph generation
 
 ## Install for common usage with pip
@@ -19,7 +18,7 @@ source social-networks-graph-generator/bin/activate
 Install
 
 ```
-pip3 install social-networks-graph-generator
+pip3 install requirements.txt
 ```
 
 Then you can launch `graphgenerator`

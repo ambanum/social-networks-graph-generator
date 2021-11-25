@@ -1,24 +1,27 @@
-import pandas as pd
 from datetime import datetime
 import json
 import networkx as nx
 import snscrape.modules.twitter as sntwitter
+import matplotlib.pyplot as plt
 
 
-from utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
+from utils.dataframe_manip import  clean_edges, concat_clean_nodes, create_json_output
 from utils.tweet_extraction import edge_from_tweet, node_original, node_RT_quoted, return_type_source_tweet, return_source_tweet
 from utils.toolbox import layout_functions
 from config import tz
 
 
 class GraphBuilder:
+    """
+    Download all tweets mentioning a specific topic since a specific date and build network of retweets and quotes of
+    accounts mentioning this topic
+    """
 
-    def __init__(self, keyword, since, algo="spring", minretweets=1, maxresults=None):
+    def __init__(self, keyword, since, minretweets=1, maxresults=None):
         self.keyword = keyword
         self.minretweets = int(minretweets)
         self.maxresults = None if maxresults == "None" else int(maxresults)
         self.since = since
-        self.algo = algo
         self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
         self.type_search = "include:nativeretweets"
         self.edges = []
@@ -28,13 +31,16 @@ class GraphBuilder:
 
     def is_valid_tweet(self, tweet, source_tweet):
         """
-        Is tweet valid
+        Is tweet valid i.e. :
+        - the source tweet was published after the specified date in since
+        - the number of retweet to consider is above the number of retweets specified in Class
+        - the user is not retweeting or mentionning himself
         """
-        return (source_tweet.date > self.since_dt) & (tweet.retweetCount >= self.minretweets)
+        return (source_tweet.date > self.since_dt) & (tweet.retweetCount >= self.minretweets) & (tweet.username != source_tweet.username)
 
     def create_search(self):
         """
-        Create search string from keyword, type of search and since
+        Create search string from keyword, type of search and since date
         """
         search = f"{self.keyword} {self.type_search}"
         if self.since:
@@ -68,33 +74,32 @@ class GraphBuilder:
         """
         if self.edges:
             self.edges = clean_edges(self.edges)
-            self.nodes_RT_quoted = clean_nodes_RT(self.nodes_RT_quoted)
-            self.nodes_original = clean_nodes_tweet(self.nodes_original)
-
-            self.nodes = pd.concat([self.nodes_original, self.nodes_RT_quoted])
+            self.nodes = concat_clean_nodes(self.nodes_RT_quoted, self.nodes_original)
             del self.nodes_original
             del self.nodes_RT_quoted
-
-            self.nodes['size'] = self.nodes.groupby(['id', 'label'])['retweetCount'].transform('sum')
-
-            self.nodes = self.nodes.sort_values("date", ascending=True)
-            self.nodes = self.nodes.groupby(["id", "label", "size"]).agg(
-                {col: lambda x: list(x) for col in ["tweets", "date", "retweetCount", "from"]}
-            ).reset_index()
-            self.nodes["from"] = self.nodes["from"].apply(lambda x: x[0])
         else:
             raise Exception("No tweet found. Try using other parameters "
                             "(for example decreasing the maximum number of retweets or extending the research window)")
 
-    def create_graph(self, algo):
+    def create_graph(self, algo="spring"):
         """
-        Create graph object using networkx library
+        Create graph object using networkx library and calculate positions of nodes using algo
         """
         self.G = nx.from_pandas_edgelist(self.edges, source="source", target="target", edge_attr="size")
         position_function = layout_functions[algo]
         self.positions = position_function(self.G)
 
-    def export_json_output(self, output_path):
+    def export_img_graph(self, path_graph="Graph.png"):
+        """
+        Export an image of the network
+        """
+        plt.figure(figsize=(30, 30))
+        nx.draw_networkx(
+            self.G, pos=self.positions, arrows=True, with_labels=False, font_size=15, node_size=10, alpha=0.5
+        )
+        plt.savefig(path_graph, format="PNG")
+
+    def export_json_output(self, output_path="output.json"):
         """
         Create clean json output
         """
