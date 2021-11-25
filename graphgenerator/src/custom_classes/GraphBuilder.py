@@ -4,22 +4,23 @@ import json
 import networkx as nx
 import snscrape.modules.twitter as sntwitter
 
-from graphgenerator.src.utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
-from graphgenerator.src.utils.tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
-from graphgenerator.src.utils.toolbox import layout_functions
-from graphgenerator.config import tz
+
+from src.utils.dataframe_manip import  clean_edges, clean_nodes_RT, clean_nodes_tweet, create_json_output
+from src.utils.tweet_extraction import edge_from_tweet, node_tweet_from_tweet, node_RT_from_tweet
+from src.utils.toolbox import layout_functions
+from config import tz
 
 
 class GraphBuilder:
 
-    def __init__(self, keyword, type_search, since, algo="spring", minretweets=1, maxresults=None):
+    def __init__(self, keyword, since, algo="spring", minretweets=1, maxresults=None):
         self.keyword = keyword
-        self.type_search = type_search
-        self.minretweets = minretweets
-        self.maxresults = maxresults
+        self.minretweets = int(minretweets)
+        self.maxresults = int(maxresults)
         self.since = since
         self.algo = algo
         self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
+        self.type_search = "filter:nativeretweets"
         self.edges = []
         self.nodes_RT = []
         self.nodes_tweet = []
@@ -46,14 +47,16 @@ class GraphBuilder:
         """
         search = self.create_search()
         print(search)
-        for i, tweet in enumerate(sntwitter.TwitterSearchScraper(search).get_items()):
+        n_valid_tweet = 0
+        for i,tweet in enumerate(sntwitter.TwitterSearchScraper(search).get_items()):
             if self.is_valid_tweet(tweet):
                 self.edges.append(edge_from_tweet(tweet))
                 self.nodes_RT.append(node_RT_from_tweet(tweet))
                 if tweet.retweetedTweet.id not in self.nodes_tweet_done:
                     self.nodes_tweet.append(node_tweet_from_tweet(tweet))
                     self.nodes_tweet_done.append(tweet.retweetedTweet.id)
-            if self.maxresults and i > self.maxresults:
+                n_valid_tweet += 1
+            if self.maxresults and n_valid_tweet >= self.maxresults:
                 break
 
     def clean_nodes_edges(self):
@@ -88,17 +91,3 @@ class GraphBuilder:
         json_output = create_json_output(self.nodes, self.edges, self.positions)
         with open(output_path, "w") as outfile:
             json.dump(json_output, outfile)
-
-
-algo = "spring"
-NB = GraphBuilder(
-    keyword = "#DébatLR",
-    minretweets = 10,
-    type_search = "filter:nativeretweets",
-    since = "2021-11-22",
-    maxresults = 2,
-)
-NB.collect_tweets()
-NB.clean_nodes_edges()
-NB.create_graph(algo)
-NB.export_json_output("test.json")
