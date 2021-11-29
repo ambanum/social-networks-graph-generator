@@ -1,4 +1,4 @@
-from config import column_names
+from graphgenerator.config import column_names
 
 nodes_columns_metadata = [
     column_names.node_date,

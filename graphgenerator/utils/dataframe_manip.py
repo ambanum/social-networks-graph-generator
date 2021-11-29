@@ -1,6 +1,6 @@
 import pandas as pd
-from config import column_names
-from config.config_export import nodes_columns_metadata, edges_columns_metadata, edges_columns_export, \
+from graphgenerator.config import column_names
+from graphgenerator.config.config_export import nodes_columns_metadata, edges_columns_metadata, edges_columns_export, \
     nodes_columns_export
 
 

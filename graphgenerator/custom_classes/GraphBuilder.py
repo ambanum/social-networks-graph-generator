@@ -5,10 +5,10 @@ import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
 
 
-from utils.dataframe_manip import  clean_edges, concat_clean_nodes, create_json_output
-from utils.tweet_extraction import edge_from_tweet, node_original, node_RT_quoted, return_type_source_tweet, return_source_tweet
-from utils.toolbox import layout_functions
-from config import tz
+from graphgenerator.utils.dataframe_manip import clean_edges, concat_clean_nodes, create_json_output
+from graphgenerator.utils.tweet_extraction import edge_from_tweet, node_original, node_RT_quoted, return_type_source_tweet, return_source_tweet
+from graphgenerator.utils.toolbox import layout_functions
+from graphgenerator.config import tz
 
 
 class GraphBuilder:

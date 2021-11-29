@@ -1,1 +1,1 @@
-from .version import __version__
+from graphgenerator.version import __version__

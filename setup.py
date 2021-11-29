@@ -1,4 +1,5 @@
 import setuptools
+from graphgenerator.version import __version__
 
 # https://www.freecodecamp.org/news/build-your-first-python-package/
 

@@ -1,4 +1,4 @@
-from config import column_names
+from graphgenerator.config import column_names
 
 
 def return_type_source_tweet(tweet):

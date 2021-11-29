@@ -7,8 +7,8 @@ Created on Thu Nov 24 17:22:29 2021
 
 import click
 
-from version import __version__
-from custom_classes.GraphBuilder import GraphBuilder
+from graphgenerator.version import __version__
+from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
 
 
 @click.command()
