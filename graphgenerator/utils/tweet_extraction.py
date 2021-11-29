@@ -18,7 +18,7 @@ def return_type_source_tweet(tweet):
 
 def return_source_tweet(tweet):
     """
-    Returns a Tweet object which ist the source tweet of the given tweet
+    Returns a Tweet object which ist the source tweet of the given tweet (the tweet which has been retweeted or quoted)
     """
     if tweet.retweetedTweet:
         return tweet.retweetedTweet
@@ -34,6 +34,7 @@ def edge_from_tweet(tweet, source_tweet):
     return {
         column_names.edge_source: tweet.user.username,
         column_names.edge_target: source_tweet.user.username,
+        column_names.edge_source_date: source_tweet.date,
         column_names.edge_date: str(tweet.date),
         column_names.edge_tweet_id: str(tweet.id),
         column_names.edge_url_quoted: tweet.url if return_type_source_tweet(tweet) == "has quoted" else "",
@@ -43,9 +44,9 @@ def edge_from_tweet(tweet, source_tweet):
     }
 
 
-def node_RT_quoted(tweet):
+def node_RT_quoted(tweet, source_tweet):
     """
-    Create dictionnary containing node (account) information regarding an account which has retweeted
+    Create dictionnary containing nodes (account) information regarding an account which has retweeted
     or quoted another tweet
     """
     return {
@@ -55,6 +56,7 @@ def node_RT_quoted(tweet):
         column_names.node_url_RT: tweet.url if return_type_source_tweet(tweet) == "has RT" else "",
         column_names.node_url_tweet: "",
         column_names.node_date: str(tweet.date),
+        column_names.node_source_date: source_tweet.date,
         column_names.node_tweet_id: str(tweet.id),
         column_names.node_type_tweet: return_type_source_tweet(tweet),
         column_names.node_rt_count: tweet.retweetCount if return_type_source_tweet(tweet) == "has quoted" else 0
@@ -72,7 +74,7 @@ def node_original(tweet, source_tweet):
         column_names.node_url_tweet: source_tweet.url,
         column_names.node_url_quoted: "",
         column_names.node_url_RT: "",
-        column_names.node_date: str(source_tweet.date),
+        column_names.node_date: source_tweet.date,
         column_names.node_tweet_id: str(source_tweet.id),
         column_names.node_rt_count: tweet.retweetCount,
         column_names.node_type_tweet: "original"
