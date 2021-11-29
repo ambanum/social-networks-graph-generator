@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from graphgenerator.utils.dataframe_manip import clean_edges, concat_clean_nodes, create_json_output
 from graphgenerator.utils.tweet_extraction import edge_from_tweet, node_original, node_RT_quoted, return_type_source_tweet, return_source_tweet
-from graphgenerator.utils.toolbox import layout_functions
+from graphgenerator.utils.toolbox import layout_functions, community_functions
 from graphgenerator.config import tz
 
 
@@ -16,14 +16,6 @@ class GraphBuilder:
     Download all tweets mentioning a specific topic since a specific date and build network of retweets and quotes of
     accounts mentioning this topic
     """
-    type_search = "include:nativeretweets"
-    edges = []
-    nodes_original_done = []
-    nodes = []
-    G = []
-    positions = []
-    last_collected_tweet = ""
-    last_collected_date = ""
 
     def __init__(self, keyword, since, minretweets=1, maxresults=None):
         self.keyword = keyword
@@ -33,6 +25,15 @@ class GraphBuilder:
         self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
         self.nodes_original = []
         self.nodes_RT_quoted = []
+        self.nodes_original_done = []
+        self.type_search = "include:nativeretweets"
+        self.edges = []
+        self.nodes = []
+        self.G = []
+        self.positions = []
+        self.communities = {}
+        self.last_collected_tweet = ""
+        self.last_collected_date = ""
 
     def is_valid_tweet(self, tweet, source_tweet):
         """
@@ -98,6 +99,15 @@ class GraphBuilder:
         position_function = layout_functions[algo]["function"]
         self.positions = position_function(self.G, **layout_functions[algo]["args"])
 
+    def find_communities(self, community_algo="louvain"):
+        """
+        find communities in graph using a community algorithm
+        """
+        community_function = community_functions[community_algo]["function"]
+        cleaning_function = community_functions[community_algo]["cleaning"]
+        communities = community_function(self.G, **community_functions[community_algo]["args"])
+        self.communities = cleaning_function(communities)
+
     def export_img_graph(self, path_graph="Graph.png"):
         """
         Export an image of the network
@@ -112,14 +122,15 @@ class GraphBuilder:
         """
         Create clean json output
         """
-        json_output = create_json_output(self.nodes, self.edges, self.positions)
+        json_output = create_json_output(self.nodes, self.edges, self.positions, self.communities)
         json_output["metadata"] = {
             "keyword": self.keyword,
             "since": self.since,
             "type_search": self.type_search,
             "maxresults": self.maxresults,
             "minretweets": self.minretweets,
-            "last_collected_tweet": self.last_collected_tweet
+            "last_collected_tweet": self.last_collected_tweet,
+            "last_collected_date": str(self.last_collected_date)
         }
         with open(output_path, "w") as outfile:
             json.dump(json_output, outfile)

@@ -1,5 +1,6 @@
 from graphgenerator.config import column_names
 
+
 nodes_columns_metadata = [
     column_names.node_date,
     column_names.node_url_tweet,
@@ -31,6 +32,7 @@ nodes_columns_export = [
     column_names.node_type_tweet,
     column_names.node_metadata,
     column_names.node_pos_x,
-    column_names.node_pos_y
+    column_names.node_pos_y,
+    column_names.nodes_community
 
 ]

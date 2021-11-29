@@ -108,15 +108,20 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     return nodes
 
 
-def create_json_output(nodes, edges, position):
+def create_json_output(nodes, edges, position, communities):
     """
-    Create a json output with nodes and edges
+    Create a json output with nodes and edges, merge positions and communities information at the user level
     """
     # merge positions to node dataframe
     position_df = pd.DataFrame(position).T.reset_index().rename(
         columns={0: column_names.node_pos_x, 1: column_names.node_pos_y, "index": column_names.node_id}
     )
     nodes = nodes.merge(position_df, how="right", on=column_names.node_id)
+    # merge communities to node dataframe
+    communities_df = pd.DataFrame([communities]).T.reset_index().rename(
+        columns={"index": column_names.node_id, 0: column_names.nodes_community}
+    )
+    nodes = nodes.merge(communities_df, how="left", on=column_names.node_id)
     # create metadata field in nodes en edges dataframes
     nodes[column_names.node_metadata] = nodes.apply(lambda x: {col: x[col] for col in nodes_columns_metadata}, axis=1)
     edges[column_names.edge_metadata] = edges.apply(lambda x: {col: x[col] for col in edges_columns_metadata}, axis=1)

@@ -30,7 +30,11 @@ from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
     "-m", "--maxresults", default = "None", help="The maximal number of tweets that we will look at", show_default=True
 )
 @click.option(
-    "-a", "--algo", default="spring", help="The layout algorithm you want to use to draw the graph", show_default=True
+    "-a", "--layout_algo", default="spring", help="The layout algorithm you want to use to draw the graph", show_default=True
+)
+@click.option(
+    "-c", "--community_algo", default="louvain", help="The algorithm to use to identify communities in the graph",
+    show_default=True
 )
 @click.option(
     "-o", "--output_path", default = "output.json",
@@ -40,7 +44,10 @@ from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
 @click.option("-g", "--export_graph", is_flag=True, help="export a jpeg file of the network")
 @click.option("-j", "--graph_path", default="graph.png", help="path where to export graph png file", show_default=True)
 @click.option("-v", "--version", is_flag=True, help="Get version of the package")
-def main(version, keyword, output_path, minretweets, since, maxresults, algo, export_graph, graph_path):
+def main(
+        version, keyword, output_path, minretweets, since, maxresults, layout_algo, export_graph, graph_path,
+        community_algo
+):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
     """
@@ -52,13 +59,15 @@ def main(version, keyword, output_path, minretweets, since, maxresults, algo, ex
         NB.collect_tweets()
         print("Data collection ended, time of execution is:",  datetime.datetime.now() - start)
         NB.clean_nodes_edges()
-        NB.create_graph(algo)
+        NB.create_graph(layout_algo)
         print("Graph creation ended, time of execution is:",  datetime.datetime.now() - start)
+        NB.find_communities(community_algo)
+        print("Communities algo ended, time of execution is:", datetime.datetime.now() - start)
         if export_graph:
             NB.export_img_graph(graph_path)
         NB.export_json_output(output_path)
         end = datetime.datetime.now()
-        print("The time of execution of above program is :", end - start)
+        print("The time of execution of the whole program is :", end - start)
 
 
 if __name__ == "__main__":
