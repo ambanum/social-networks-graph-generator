@@ -62,14 +62,14 @@ Then you can use `./graphgenerator-dev.py` as an executable command
 
 # Usage
 
-To get the bot score probability of a user account, you can do so
+To get the graph of a keyword or hashtag, you can do so
 
 ```
 # by search: this will use snscrape to get the data
-graphgenerator username
 graphgenerator "#hashtag"
-graphgenerator "#hashtag" --maxresults=1000
-graphgenerator "#hashtag" --since="2004-01-01" --maxresults=1000
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --since="2004-01-01" --algo="spring" --output_path="output.json" 
+# if you want to visualise the graph, you can choose to export a jpeg file of it 
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --since="2004-01-01" --algo="spring" --output_path="output.json" --export_graph --path_graph="graph.png"
 ```
 
 ## Example
