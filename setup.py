@@ -27,7 +27,9 @@ setuptools.setup(
         "pandas==1.2.5",
         "click==8.0.1",
         "pytz==2021.3",
-        "matplotlib==3.5.0"
+        "matplotlib==3.5.0",
+        "-e git+https://github.com/JustAnotherArchivist/snscrape.git@a6b6f3faaa26f541d9469651451340096b5abc92#egg=snscrape"
+
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",
