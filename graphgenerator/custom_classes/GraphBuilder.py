@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import networkx as nx
 import snscrape.modules.twitter as sntwitter
@@ -21,8 +21,12 @@ class GraphBuilder:
         self.keyword = keyword
         self.minretweets = int(minretweets)
         self.maxresults = None if (maxresults == "None") or (maxresults is None) else int(maxresults)
-        self.since = since
-        self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
+        if datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz) >= (datetime.now(tz=tz) - timedelta(days=9)):
+            self.since = since
+            self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
+        else:
+            self.since = (datetime.now(tz=tz) - timedelta(days=9)).strftime("%Y-%m-%d") #since
+            self.since_dt = datetime.now(tz=tz) - timedelta(days=9)#datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
         self.nodes_original = []
         self.nodes_RT_quoted = []
         self.nodes_original_done = []
@@ -42,7 +46,7 @@ class GraphBuilder:
         - the number of retweet to consider is above the number of retweets specified in Class
         - the user is not retweeting or mentionning him/herself
         """
-        return (source_tweet.date > self.since_dt) & (tweet.retweetCount >= self.minretweets) & (tweet.username != source_tweet.username)
+        return (source_tweet.date > self.since_dt) & (tweet.username != source_tweet.username) &  (tweet.retweetCount >= self.minretweets)
 
     def create_search(self):
         """
@@ -76,6 +80,7 @@ class GraphBuilder:
                 self.last_collected_tweet = tweet.id
                 self.last_collected_date = tweet.date
                 if self.maxresults and n_valid_tweet >= self.maxresults:
+                    print("total number of tweets collected is :", i)
                     break
 
     def clean_nodes_edges(self):

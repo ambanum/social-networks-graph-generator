@@ -78,7 +78,7 @@ def aggregate_node_data(nodes):
     sort by date and aggregate data into list at the user level (will then be available in metadata field)
     """
     nodes = nodes.sort_values(column_names.node_date, ascending=True)
-    nodes = nodes.groupby([column_names.node_id, column_names.node_label, column_names.node_size]).agg(
+    nodes = nodes.groupby([column_names.node_id, column_names.node_label]).agg(
         {col: lambda x: list(x) for col in [column_names.node_url_tweet, column_names.node_url_quoted,
                                             column_names.node_url_RT, column_names.node_date,
                                             column_names.node_rt_count, column_names.node_type_tweet]}
@@ -100,7 +100,7 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     #drop duplicates
     nodes = drop_duplicated_nodes(nodes)
     #aggregate retweet count at the user level to create a new variable which will be the size of the node
-    nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
+    #nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
     #aggregate data at the user level
     nodes = aggregate_node_data(nodes)
     #keep the first value of the type of tweet as a label
@@ -108,20 +108,48 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     return nodes
 
 
-def create_json_output(nodes, edges, position, communities):
+def merge_positions2nodes(position, nodes):
     """
-    Create a json output with nodes and edges, merge positions and communities information at the user level
+    merge positions data calculated thanks to layout algo in GraphBuilder to node dataframe
     """
-    # merge positions to node dataframe
     position_df = pd.DataFrame(position).T.reset_index().rename(
         columns={0: column_names.node_pos_x, 1: column_names.node_pos_y, "index": column_names.node_id}
     )
     nodes = nodes.merge(position_df, how="right", on=column_names.node_id)
-    # merge communities to node dataframe
+    return nodes
+
+
+def merge_communities2nodes(communities, nodes):
+    """
+    merge communities data calculated thanks to community detection algo in Graphbuilder to node dataframe
+    """
     communities_df = pd.DataFrame([communities]).T.reset_index().rename(
         columns={"index": column_names.node_id, 0: column_names.nodes_community}
     )
     nodes = nodes.merge(communities_df, how="left", on=column_names.node_id)
+    return nodes
+
+
+def merge_edges_size2nodes(edges, nodes):
+    """
+    Sum up edge size at the use level to get the total number of RT and quotes of an user
+    Use this method rather than summing up the RT count at the user level as it does not show all results (some RT are
+    hidden and not returned in search function)
+    """
+    nodes_size = edges.groupby(column_names.edge_target)[column_names.edge_size].sum().reset_index()
+    nodes = nodes.merge(nodes_size, how="left", left_on=column_names.node_id, right_on=column_names.edge_target)
+    nodes[column_names.node_size] = nodes[column_names.node_size].fillna(0)
+    return nodes
+
+
+def create_json_output(nodes, edges, position, communities):
+    """
+    Create a json output with nodes and edges, merge positions and communities information at the user level
+    """
+    #merge nodes with other datasets
+    nodes = merge_positions2nodes(position, nodes)
+    nodes = merge_communities2nodes(communities, nodes)
+    nodes = merge_edges_size2nodes(edges, nodes)
     # create metadata field in nodes en edges dataframes
     nodes[column_names.node_metadata] = nodes.apply(lambda x: {col: x[col] for col in nodes_columns_metadata}, axis=1)
     edges[column_names.edge_metadata] = edges.apply(lambda x: {col: x[col] for col in edges_columns_metadata}, axis=1)
