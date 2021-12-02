@@ -1,7 +1,8 @@
 from graphgenerator.config import column_names
+from snscrape.modules.twitter import Tweet
 
 
-def return_type_source_tweet(tweet):
+def return_type_source_tweet(tweet: Tweet):
     """
     Returns type of a Tweet object, returns:
     - "has RT" if it is a retweet
@@ -16,7 +17,7 @@ def return_type_source_tweet(tweet):
         return None
 
 
-def return_source_tweet(tweet):
+def return_source_tweet(tweet: Tweet):
     """
     Returns a Tweet object which ist the source tweet of the given tweet (the tweet which has been retweeted or quoted)
     """
@@ -26,7 +27,7 @@ def return_source_tweet(tweet):
         return tweet.quotedTweet
 
 
-def edge_from_tweet(tweet, source_tweet):
+def edge_from_tweet(tweet: Tweet, source_tweet: Tweet):
     """
     Create dictionnary from tweet (and its source tweet) information which will then feed the edge table
     Here tweets can be either retweet or quoted tweets, it describe the connexion between two accounts through a tweet
@@ -44,7 +45,7 @@ def edge_from_tweet(tweet, source_tweet):
     }
 
 
-def node_RT_quoted(tweet, source_tweet):
+def node_RT_quoted(tweet: Tweet, source_tweet: Tweet):
     """
     Create dictionnary containing nodes (account) information regarding an account which has retweeted
     or quoted another tweet
@@ -63,7 +64,7 @@ def node_RT_quoted(tweet, source_tweet):
     }
 
 
-def node_original(tweet, source_tweet):
+def node_original(tweet: Tweet, source_tweet: Tweet):
     """
     Create dictionnary containing node (account) information regarding an account which has been retweeted
     or quoted in another tweet

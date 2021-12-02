@@ -6,8 +6,8 @@ from graphgenerator.config.config_export import nodes_columns_metadata, edges_co
 
 def aggregate_edge_data(edges):
     """
-    Aggregate edges data at the user level, to do so we use groupby command, data from a same column is either gathered
-    in a list at the user level, or summed up
+    Aggregate edges data at the user level, to do so we use groupby command, data from a same column are  gathered
+    in a list at the user level (except for the edge label for each we keep only the first label)
     """
     return edges.groupby([column_names.edge_source, column_names.edge_target, column_names.edge_type]).agg(
         {column_names.edge_date: lambda x: list(x), column_names.edge_tweet_id: lambda x: list(x),
@@ -67,6 +67,9 @@ def drop_duplicated_nodes(nodes):
     delete duplicated nodes and keep only the one with is "has quoted" (in some cases, it can happen that a tweet quote
     another tweet and is retweeted, in this specific case, we want to keep only the node from from the "has quoted"
     rather than the "original"
+    (so we sort the data by the type of tweet so "has quoted" and "has RT" are before "original" and then we keep the
+    first)
+    //TO DO find best way to remove these duplicates, here it is quite dirty
     """
     nodes = nodes.sort_values(column_names.node_type_tweet, ascending=True)
     nodes = nodes.drop_duplicates(column_names.node_tweet_id, keep="first")
@@ -75,7 +78,8 @@ def drop_duplicated_nodes(nodes):
 
 def aggregate_node_data(nodes):
     """
-    sort by date and aggregate data into list at the user level (will then be available in metadata field)
+    sort by date and aggregate node data into list at the user level (the aggregated data are the data which
+    will then be available in the metadata field)
     """
     nodes = nodes.sort_values(column_names.node_date, ascending=True)
     nodes = nodes.groupby([column_names.node_id, column_names.node_label]).agg(
@@ -84,6 +88,7 @@ def aggregate_node_data(nodes):
                                             column_names.node_rt_count, column_names.node_type_tweet]}
     ).reset_index()
     return nodes
+
 
 def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     """
@@ -110,7 +115,7 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
 
 def merge_positions2nodes(position, nodes):
     """
-    merge positions data calculated thanks to layout algo in GraphBuilder to node dataframe
+    Merge positions data calculated thanks to layout algo in GraphBuilder to node dataframe
     """
     position_df = pd.DataFrame(position).T.reset_index().rename(
         columns={0: column_names.node_pos_x, 1: column_names.node_pos_y, "index": column_names.node_id}
@@ -121,7 +126,7 @@ def merge_positions2nodes(position, nodes):
 
 def merge_communities2nodes(communities, nodes):
     """
-    merge communities data calculated thanks to community detection algo in Graphbuilder to node dataframe
+    Merge communities data calculated thanks to community detection algo in Graphbuilder to node dataframe
     """
     communities_df = pd.DataFrame([communities]).T.reset_index().rename(
         columns={"index": column_names.node_id, 0: column_names.nodes_community}

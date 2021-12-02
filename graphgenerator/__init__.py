@@ -1,1 +1,2 @@
 from graphgenerator.version import __version__
+from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
