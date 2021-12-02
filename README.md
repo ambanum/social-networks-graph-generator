@@ -18,7 +18,7 @@ source social-networks-graph-generator/bin/activate
 Install
 
 ```
-pip3 install requirements.txt
+pip3 install git+https://github.com/ambanum/social-networks-graph-generator
 ```
 
 Then you can launch `graphgenerator`
@@ -62,14 +62,46 @@ Then you can use `./graphgenerator-dev.py` as an executable command
 
 # Usage
 
-To get the graph of a keyword or hashtag, you can do so
+To get the graph of a keyword or hashtag, you can do so (using cli command)
 
 ```
 # by search: this will use snscrape to get the data
 graphgenerator "#hashtag"
-graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --since="2004-01-01" --algo="spring" --output_path="output.json" 
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --output_path="output.json" 
 # if you want to visualise the graph, you can choose to export a jpeg file of it 
-graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --since="2004-01-01" --algo="spring" --output_path="output.json" --export_graph --path_graph="graph.png"
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --output_path="output.json" --export_graph --path_graph="graph.png"
+```
+
+Or you can choose to load graphgenerator as a library and use GraphBuilder class directly in your Python script
+
+```
+#import library 
+from graphgenerator import GraphBuilder
+# initialize Graph builder class
+GB = GraphBuilder(
+    keyword="#hashtag", 
+    minretweets=1, 
+    since="2021-12-05", 
+    maxresults=None
+)
+
+# collect tweets, here we collect retweet and quotes of tweets mentionning "#hashtag" since "2021-12-05" (collect can only back max to 7 days)
+NB.collect_tweets()
+
+# create node and edges pandas dataframe (NB.nodes and NB.edges) 
+NB.clean_nodes_edges()
+
+# create graph object (networkx format, stored in NB.G) and calculate position of the nodes using layout_algo)
+NB.create_graph(layout_algo="spring")
+
+# look for communities in the graph using community_algo
+NB.find_communities(community_algo)
+
+#export an image of the graph (this part is optionnal)
+NB.export_img_graph(graph_path)
+
+# export graph in a json format containing information about nodes and edges
+NB.export_json_output(output_path)
 ```
 
 ## Example
