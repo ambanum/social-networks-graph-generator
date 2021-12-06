@@ -55,6 +55,64 @@ available in `graphgenerator`.
 By default, we have chosen an algorithm that is not available in `networkx` but in an 
 library. It is based on the "Leuven method". This method is particularly efficient for large networks.
 
+#Outputs
+
+## JSON
+
+Graphgenerator exports a json file containing information about the nodes (Twitter accounts, 'nodes') and the links between them ('edges'). 
+them ('edges')
+
+The file contains three types of information
+
+### Edges
+
+List of links between twitters that mention the hashtag (accounts that retweet or mention the tweet of another account). 
+tweet of another account). For each link between accounts we have the following information: 
+- source`: name of the twitter account that retweeted or mentioned another account
+- `target`: the retweeted or mentioned account
+- size`: the size of the link, i.e. the number of mentions or RTs from 'source' to 'target
+- `label`:
+- `id`: the id of the link
+- type`:
+- `metadata`: additional information about the link:
+  - `date`: list of dates on which RTs or mentions occurred
+  - quoted`: list of links of mentions, in order of dates
+  - `RT`: list of RT links, by date order
+
+### Nodes
+
+List of twitter accounts that are mentioned or RT or mention or RT a tweet containing the hashtag 
+searched. For each account, we have the following information:
+- `id`: account id
+- `label`: name of the twitter account
+- `size`: size of the node, i.e. number of times i was RT'd or mentioned
+- `from`: name of the account
+- `community_id`: id of the community detected thanks to the community algorithm
+- `x`: x coordinate on the graph
+- `y`: y coordinate on the graph
+- metadata`: additional information about the node:
+  - `date`: date of RTs, mentions or tweets from the account
+  - `tweets`: list of urls of its tweets in ascending date order
+  - `RT`: list of urls of its RTs in ascending date order
+  - `quoted`: list of urls of its mentions in ascending order of dates
+  - `dates_edges`: list of dates of RTs and mentions of this account (if any)
+
+### Metadata
+
+The `metadata` field contains additional information about the search and the results of the search performed.
+- keyword: keyword or hashtag used in the search
+- since`: date until which the tweets were searched
+- maxresults`: maximum number of results in the search
+- minretweets`: minimum number of RTs in the search
+- `last_collected_tweet`: id of the last collected tweets
+- `last_collected_date`: date of the last collected tweet
+
+## Graph
+
+A png file can be exported using the `--export_graph` command line option (or the 
+export_img_graph()` method of `GraphBuilder`).
+The file allows you to quickly visualize the shape of the graph and thus test different types of layout.
+
 
 # Méthodologie
 
@@ -111,3 +169,61 @@ disponibles dans `graphgenerator`.
 
 Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans `networkx` mais dans une bibliothèque 
 indépendante. Il repose sur la "méthode de louvain". Cette méthode est particulièrement efficace pour les gros réseaux.
+
+#Sorties
+
+## JSON
+
+Graphgenerator exporte un fichier json contenant les informations sur les noeuds (comptes Twitter, 'nodes') et les liens entre 
+eux ('edges')
+
+Le fichier contient trois types d'informations
+
+### Edges
+
+Liste des liens entre les comptes twitters qui mentionnent le hashtag recherché (comptes qui retweete ou mentionne le 
+tweet d'un autre compte). Pour chaque liens entre les comptes on dispose des informations suivantes: 
+- `source`: nom du compte twitter qui a retweeté ou mentionné un autre compte
+- `target`: le compte retweeté ou mentionné
+- `size`: la taille du lien, i.e. le nombre de mention ou RT de 'source' vers 'target'
+- `label`:
+- `id`: l'id du lien
+- `type`:
+- `metadata`: information aditionnelles sur le lien:
+  - `date`: liste des dates auxquelles ont eu lieu les RT ou mentions
+  - `quoted`: liste des liens des mentions, par ordre ds dates
+  - `RT`: liste des liens des RT, par ordre ds dates
+
+### Nodes
+
+Liste des comptes twitter qui sont mentionnés ou RT ou alors qui mentionnent ou RT un tweet contenant le hashtag 
+recherché. POur chaque comptes, on dispose des informations suivantes:
+- `id`: id du compte
+- `label`: nom du compte twitter
+- `size`: taille du noeud, i.e. nombre de fois où i la été RT ou mentionné
+- `from`
+- `community_id`: id du cluster détecté grâce à l'algo de communauté
+- `x`: coordonnées x du noeud dans le graph
+- `y`: coordonnées y du noeud dans le graph
+- `metadata`: informations additionnelles sur le noeud:
+  - `date`: date des RT, mentions ou tweets du compte
+  - `tweets`: liste des urls de ses tweets par ordre croissant des dates
+  - `RT`:  liste des urls de ses RT par ordre croissant des dates
+  - `quoted`:  liste des urls de ses mentions par ordre croissant des dates
+  - `dates_edges`: liste des dates des RT et mentions de ce compte (s'il y en a)
+
+### Metadata
+
+Le champs `metadata` contient des informations additionnelles sur la recherche et les résultats de al recherche effectuée.
+- `keyword`: mot clé ou hashtag utilisé dans la recherche
+- `since`: date jusqu'à laquelle les tweets ont été cherchés
+- `maxresults`: nombre maximal de résultats dans la recherche
+- `minretweets`: nombre de RT minimal dans la recherche
+- `last_collected_tweet`: id du dernier tweets collecté
+- `last_collected_date`: date du dernier tweet collecté
+
+## Graph
+
+Un fichier png peut être exporté en utilisant l'option `--export_graph` en ligne de commande (ou la méthode 
+`export_img_graph()` de `GraphBuilder`).
+Le fichier permet de visualiser rapidement la forme du graph et donc de tester différents types de 'layout'.

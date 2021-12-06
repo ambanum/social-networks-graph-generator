@@ -107,13 +107,63 @@ NB.export_json_output(output_path)
 ## Example
 
 ```
-graphgenerator ambnum
+ graphgenerator "ambnum" -m 10
 ```
 
 will return
 
 ```json
-// TODO
+{
+    "edges":
+    [
+        {
+            "source": "AmbNum",
+            "target": "MPubliques",
+            "size": 1,
+            "label": "has RT",
+            "id": "edge_0",
+            "type": "arrow",
+            "metadata":
+            {
+                "date": ["2021-12-02 09:32:09+00:00"],
+                "quoted": [""],
+                "RT": ["https://twitter.com/AmbNum/status/1466339393812193283"]
+            }
+        },
+        ...
+    ],
+    "nodes":
+    [
+        {
+            "id": "AmbNum",
+            "label": "@AmbNum",
+            "size": 0.0,
+            "from": "has RT",
+            "metadata":
+            {
+                "date": ["2021-12-01 16:24:47+00:00", "2021-12-02 09:32:09+00:00"],
+                "tweets": ["", ""],
+                "quoted": ["", ""],
+                "RT": ["https://twitter.com/AmbNum/status/1466080848147529731", "https://twitter.com/AmbNum/status/1466339393812193283"],
+                "dates_edges": []
+            },
+            "x": 0.9420867798959837,
+            "y": -0.3153417838051506,
+            "community_id": 1
+        },
+        ...
+    ],
+    "metadata":
+    {
+        "keyword": "ambnum",
+        "since": "2021-11-29",
+        "type_search": "include:nativeretweets",
+        "maxresults": 10,
+        "minretweets": 1,
+        "last_collected_tweet": 1465613154193399813,
+        "last_collected_date": "2021-11-30 09:26:20+00:00"
+    }
+}
 ```
 
 ## Using Docker
