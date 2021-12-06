@@ -5,7 +5,8 @@ nodes_columns_metadata = [
     column_names.node_date,
     column_names.node_url_tweet,
     column_names.node_url_quoted,
-    column_names.node_url_RT
+    column_names.node_url_RT,
+    column_names.node_edge_date
 ]
 
 edges_columns_metadata = [
