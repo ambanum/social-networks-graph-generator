@@ -85,7 +85,7 @@ class GraphBuilder:
         """
         return (
             (source_tweet.date > self.since_dt)
-            & (tweet.username != source_tweet.username)
+            & (tweet.user.username != source_tweet.user.username)
             & (source_tweet.retweetCount >= self.minretweets)
         )
 
