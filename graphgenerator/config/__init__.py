@@ -1,3 +1,3 @@
 import pytz
 
-tz = pytz.timezone('UTC')
+tz = pytz.timezone("UTC")

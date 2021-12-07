@@ -5,8 +5,18 @@ import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
 
 
-from graphgenerator.utils.dataframe_manip import clean_edges, concat_clean_nodes, create_json_output
-from graphgenerator.utils.tweet_extraction import edge_from_tweet, node_original, node_RT_quoted, return_type_source_tweet, return_source_tweet
+from graphgenerator.utils.dataframe_manip import (
+    clean_edges,
+    concat_clean_nodes,
+    create_json_output,
+)
+from graphgenerator.utils.tweet_extraction import (
+    edge_from_tweet,
+    node_original,
+    node_RT_quoted,
+    return_type_source_tweet,
+    return_source_tweet,
+)
 from graphgenerator.utils.toolbox import layout_functions, community_functions
 from graphgenerator.config import tz
 
@@ -30,7 +40,9 @@ class GraphBuilder:
         """
         self.keyword = keyword
         self.minretweets = int(minretweets)
-        self.maxresults = None if (maxresults == "None") or (maxresults is None) else int(maxresults)
+        self.maxresults = (
+            None if (maxresults == "None") or (maxresults is None) else int(maxresults)
+        )
         self.get_valid_date(since)
         self.nodes_original = []
         self.nodes_RT_quoted = []
@@ -48,16 +60,20 @@ class GraphBuilder:
         self.graph_created = False
         self.communities_detected = False
 
-    def get_valid_date(self, since, number_days = 7):
+    def get_valid_date(self, since, number_days=7):
         """
         Return valid date in string format and datetime format. A date is valid if it falls in the past 7 days
         otherwise it will be changed to the date 7 days ago. We can't get retweets from more than 7 days ago.
         """
-        if datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz) >= (datetime.now(tz=tz) - timedelta(days=number_days)):
+        if datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz) >= (
+            datetime.now(tz=tz) - timedelta(days=number_days)
+        ):
             self.since = since
             self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
         else:
-            self.since = (datetime.now(tz=tz) - timedelta(days=number_days)).strftime("%Y-%m-%d")
+            self.since = (datetime.now(tz=tz) - timedelta(days=number_days)).strftime(
+                "%Y-%m-%d"
+            )
             self.since_dt = datetime.now(tz=tz) - timedelta(days=number_days)
 
     def is_valid_tweet(self, tweet, source_tweet):
@@ -67,7 +83,11 @@ class GraphBuilder:
         - the number of retweet to consider is above the number of retweets specified in Class
         - the user is not retweeting or mentioning him/herself
         """
-        return (source_tweet.date > self.since_dt) & (tweet.username != source_tweet.username) &  (source_tweet.retweetCount >= self.minretweets)
+        return (
+            (source_tweet.date > self.since_dt)
+            & (tweet.username != source_tweet.username)
+            & (source_tweet.retweetCount >= self.minretweets)
+        )
 
     def create_search(self):
         """
@@ -91,7 +111,9 @@ class GraphBuilder:
             search = self.create_search()
             print(search)
             n_valid_tweet = 0
-            for i,tweet in enumerate(sntwitter.TwitterSearchScraper(search).get_items()):
+            for i, tweet in enumerate(
+                sntwitter.TwitterSearchScraper(search).get_items()
+            ):
                 is_RT_or_quoted = return_type_source_tweet(tweet)
                 if is_RT_or_quoted:
                     source_tweet = return_source_tweet(tweet)
@@ -99,7 +121,9 @@ class GraphBuilder:
                         self.edges.append(edge_from_tweet(tweet, source_tweet))
                         self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet))
                         if source_tweet.id not in self.nodes_original_done:
-                            self.nodes_original.append(node_original(tweet, source_tweet))
+                            self.nodes_original.append(
+                                node_original(tweet, source_tweet)
+                            )
                             self.nodes_original_done.append(source_tweet.id)
                         n_valid_tweet += 1
                     self.last_collected_tweet = tweet.id
@@ -108,8 +132,10 @@ class GraphBuilder:
                         break
             self.data_collected = True
         else:
-            raise Exception("Data has already been collected, rerun GaphBuilder class if you want to try with new"
-                            "parameter")
+            raise Exception(
+                "Data has already been collected, rerun GaphBuilder class if you want to try with new"
+                "parameter"
+            )
 
     def clean_nodes_edges(self):
         """
@@ -120,18 +146,28 @@ class GraphBuilder:
             if len(self.edges):
                 self.edges = clean_edges(self.edges, self.last_collected_date)
                 if len(self.edges):
-                    self.nodes = concat_clean_nodes(self.nodes_RT_quoted, self.nodes_original, self.last_collected_date)
+                    self.nodes = concat_clean_nodes(
+                        self.nodes_RT_quoted,
+                        self.nodes_original,
+                        self.last_collected_date,
+                    )
                     del self.nodes_original
                     del self.nodes_RT_quoted
                     self.data_cleaned = True
                 else:
-                    raise Exception("No enough tweets found to build graph. Try using other parameters "
-                                    "(for example decreasing the maximum number of retweets or extending the research window)")
+                    raise Exception(
+                        "No enough tweets found to build graph. Try using other parameters "
+                        "(for example decreasing the maximum number of retweets or extending the research window)"
+                    )
             else:
-                raise Exception("No enough tweets found to build graph. Try using other parameters "
-                                "(for example decreasing the maximum number of retweets or extending the research window)")
+                raise Exception(
+                    "No enough tweets found to build graph. Try using other parameters "
+                    "(for example decreasing the maximum number of retweets or extending the research window)"
+                )
         else:
-            raise Exception("Data has not yet been collected, run .collect_tweets() before")
+            raise Exception(
+                "Data has not yet been collected, run .collect_tweets() before"
+            )
 
     def create_graph(self, layout_algo="spring"):
         """
@@ -141,12 +177,18 @@ class GraphBuilder:
                 must be in ['circular', 'kamada_kawai', 'spring', 'random', 'spiral'])
         """
         if self.data_cleaned:
-            self.G = nx.from_pandas_edgelist(self.edges, source="source", target="target", edge_attr="size")
+            self.G = nx.from_pandas_edgelist(
+                self.edges, source="source", target="target", edge_attr="size"
+            )
             position_function = layout_functions[layout_algo]["function"]
-            self.positions = position_function(self.G, **layout_functions[layout_algo]["args"])
+            self.positions = position_function(
+                self.G, **layout_functions[layout_algo]["args"]
+            )
             self.graph_created = True
         else:
-            raise Exception("data must be cleaned thanks to .clean_nodes_edges() before creating the graph")
+            raise Exception(
+                "data must be cleaned thanks to .clean_nodes_edges() before creating the graph"
+            )
 
     def find_communities(self, community_algo="louvain"):
         """
@@ -158,11 +200,15 @@ class GraphBuilder:
         if self.graph_created:
             community_function = community_functions[community_algo]["function"]
             cleaning_function = community_functions[community_algo]["cleaning"]
-            communities = community_function(self.G, **community_functions[community_algo]["args"])
+            communities = community_function(
+                self.G, **community_functions[community_algo]["args"]
+            )
             self.communities = cleaning_function(communities)
             self.communities_detected = True
         else:
-            raise Exception("graph needs to be created thanks to .creat_graph() before using this command")
+            raise Exception(
+                "graph needs to be created thanks to .creat_graph() before using this command"
+            )
 
     def export_img_graph(self, path_graph="Graph.png"):
         """
@@ -174,11 +220,19 @@ class GraphBuilder:
         if self.graph_created:
             plt.figure(figsize=(30, 30))
             nx.draw_networkx(
-                self.G, pos=self.positions, arrows=True, with_labels=False, font_size=15, node_size=10, alpha=0.5
+                self.G,
+                pos=self.positions,
+                arrows=True,
+                with_labels=False,
+                font_size=15,
+                node_size=10,
+                alpha=0.5,
             )
             plt.savefig(path_graph, format="PNG")
         else:
-            raise Exception("graph needs to be created thanks to .creat_graph() before using this command")
+            raise Exception(
+                "graph needs to be created thanks to .creat_graph() before using this command"
+            )
 
     def export_json_output(self, output_path="output.json"):
         """
@@ -187,7 +241,9 @@ class GraphBuilder:
                 output_path (str): path where to export the json
         """
         if self.communities_detected:
-            json_output = create_json_output(self.nodes, self.edges, self.positions, self.communities)
+            json_output = create_json_output(
+                self.nodes, self.edges, self.positions, self.communities
+            )
             json_output["metadata"] = {
                 "keyword": self.keyword,
                 "since": self.since,
@@ -195,10 +251,12 @@ class GraphBuilder:
                 "maxresults": self.maxresults,
                 "minretweets": self.minretweets,
                 "last_collected_tweet": self.last_collected_tweet,
-                "last_collected_date": str(self.last_collected_date)
+                "last_collected_date": str(self.last_collected_date),
             }
             with open(output_path, "w") as outfile:
                 json.dump(json_output, outfile)
         else:
-            raise Exception("Before exporting json of the graph you must have run all functions to build it up:"
-                            "collect_tweets(), clean_nodes_edges(), create_graph() and find_communities()")
+            raise Exception(
+                "Before exporting json of the graph you must have run all functions to build it up:"
+                "collect_tweets(), clean_nodes_edges(), create_graph() and find_communities()"
+            )

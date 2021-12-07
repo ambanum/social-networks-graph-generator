@@ -38,10 +38,14 @@ def edge_from_tweet(tweet: Tweet, source_tweet: Tweet):
         column_names.edge_source_date: source_tweet.date,
         column_names.edge_date: str(tweet.date),
         column_names.edge_tweet_id: str(tweet.id),
-        column_names.edge_url_quoted: tweet.url if return_type_source_tweet(tweet) == "has quoted" else "",
-        column_names.edge_url_RT: tweet.url if return_type_source_tweet(tweet) == "has RT" else "",
+        column_names.edge_url_quoted: tweet.url
+        if return_type_source_tweet(tweet) == "has quoted"
+        else "",
+        column_names.edge_url_RT: tweet.url
+        if return_type_source_tweet(tweet) == "has RT"
+        else "",
         column_names.edge_url_label: return_type_source_tweet(tweet),
-        column_names.edge_type: "arrow"
+        column_names.edge_type: "arrow",
     }
 
 
@@ -53,14 +57,20 @@ def node_RT_quoted(tweet: Tweet, source_tweet: Tweet):
     return {
         column_names.node_id: tweet.user.username,
         column_names.node_label: "@" + tweet.user.username,
-        column_names.node_url_quoted: tweet.url if return_type_source_tweet(tweet) == "has quoted" else "",
-        column_names.node_url_RT: tweet.url if return_type_source_tweet(tweet) == "has RT" else "",
+        column_names.node_url_quoted: tweet.url
+        if return_type_source_tweet(tweet) == "has quoted"
+        else "",
+        column_names.node_url_RT: tweet.url
+        if return_type_source_tweet(tweet) == "has RT"
+        else "",
         column_names.node_url_tweet: "",
         column_names.node_date: str(tweet.date),
         column_names.node_source_date: source_tweet.date,
         column_names.node_tweet_id: str(tweet.id),
         column_names.node_type_tweet: return_type_source_tweet(tweet),
-        column_names.node_rt_count: tweet.retweetCount if return_type_source_tweet(tweet) == "has quoted" else 0
+        column_names.node_rt_count: tweet.retweetCount
+        if return_type_source_tweet(tweet) == "has quoted"
+        else 0,
     }
 
 
@@ -78,5 +88,5 @@ def node_original(tweet: Tweet, source_tweet: Tweet):
         column_names.node_date: source_tweet.date,
         column_names.node_tweet_id: str(source_tweet.id),
         column_names.node_rt_count: tweet.retweetCount,
-        column_names.node_type_tweet: "original"
+        column_names.node_type_tweet: "original",
     }

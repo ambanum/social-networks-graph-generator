@@ -1,7 +1,11 @@
 import pandas as pd
 from graphgenerator.config import column_names
-from graphgenerator.config.config_export import nodes_columns_metadata, edges_columns_metadata, edges_columns_export, \
-    nodes_columns_export
+from graphgenerator.config.config_export import (
+    nodes_columns_metadata,
+    edges_columns_metadata,
+    edges_columns_export,
+    nodes_columns_export,
+)
 
 
 def aggregate_edge_data(edges):
@@ -9,11 +13,22 @@ def aggregate_edge_data(edges):
     Aggregate edges data at the user level, to do so we use groupby command, data from a same column are  gathered
     in a list at the user level (except for the edge label for each we keep only the first label)
     """
-    return edges.groupby([column_names.edge_source, column_names.edge_target, column_names.edge_type]).agg(
-        {column_names.edge_date: lambda x: list(x), column_names.edge_tweet_id: lambda x: list(x),
-         column_names.edge_url_quoted: lambda x: list(x), column_names.edge_url_RT: lambda x: list(x),
-         column_names.edge_size: lambda x: sum(x), column_names.edge_url_label: lambda x: list(x)[0]}
-    ).reset_index()
+    return (
+        edges.groupby(
+            [column_names.edge_source, column_names.edge_target, column_names.edge_type]
+        )
+        .agg(
+            {
+                column_names.edge_date: lambda x: list(x),
+                column_names.edge_tweet_id: lambda x: list(x),
+                column_names.edge_url_quoted: lambda x: list(x),
+                column_names.edge_url_RT: lambda x: list(x),
+                column_names.edge_size: lambda x: sum(x),
+                column_names.edge_url_label: lambda x: list(x)[0],
+            }
+        )
+        .reset_index()
+    )
 
 
 def clean_edges(edges_list, limit_date):
@@ -31,8 +46,8 @@ def clean_edges(edges_list, limit_date):
     edges = edges.sort_values(column_names.edge_date, ascending=True)
     # groupby id and aggregate all variables
     edges = aggregate_edge_data(edges)
-    #create edge index
-    edges = edges.reset_index().rename(columns= {"index": column_names.edge_id})
+    # create edge index
+    edges = edges.reset_index().rename(columns={"index": column_names.edge_id})
     edges[column_names.edge_id] = "edge_" + edges[column_names.edge_id].astype(str)
     return edges
 
@@ -82,11 +97,23 @@ def aggregate_node_data(nodes):
     will then be available in the metadata field)
     """
     nodes = nodes.sort_values(column_names.node_date, ascending=True)
-    nodes = nodes.groupby([column_names.node_id, column_names.node_label]).agg(
-        {col: lambda x: list(x) for col in [column_names.node_url_tweet, column_names.node_url_quoted,
-                                            column_names.node_url_RT, column_names.node_date,
-                                            column_names.node_rt_count, column_names.node_type_tweet]}
-    ).reset_index()
+    nodes = (
+        nodes.groupby([column_names.node_id, column_names.node_label])
+        .agg(
+            {
+                col: lambda x: list(x)
+                for col in [
+                    column_names.node_url_tweet,
+                    column_names.node_url_quoted,
+                    column_names.node_url_RT,
+                    column_names.node_date,
+                    column_names.node_rt_count,
+                    column_names.node_type_tweet,
+                ]
+            }
+        )
+        .reset_index()
+    )
     return nodes
 
 
@@ -98,18 +125,20 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     in a list
     It returns a unique file containing all nodes and attached information
     """
-    #load nodes from RT and quoted tweets and from original tweets
+    # load nodes from RT and quoted tweets and from original tweets
     nodes_RT_quoted = clean_nodes_RT_quoted(nodes_RT_quoted, limit_date)
     nodes_original = clean_nodes_tweet(nodes_original, limit_date)
     nodes = pd.concat([nodes_original, nodes_RT_quoted])
-    #drop duplicates
+    # drop duplicates
     nodes = drop_duplicated_nodes(nodes)
-    #aggregate retweet count at the user level to create a new variable which will be the size of the node
-    #nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
-    #aggregate data at the user level
+    # aggregate retweet count at the user level to create a new variable which will be the size of the node
+    # nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
+    # aggregate data at the user level
     nodes = aggregate_node_data(nodes)
-    #keep the first value of the type of tweet as a label
-    nodes[column_names.node_type_tweet] = nodes[column_names.node_type_tweet].apply(lambda x: x[0])
+    # keep the first value of the type of tweet as a label
+    nodes[column_names.node_type_tweet] = nodes[column_names.node_type_tweet].apply(
+        lambda x: x[0]
+    )
     return nodes
 
 
@@ -117,8 +146,16 @@ def merge_positions2nodes(position, nodes):
     """
     Merge positions data calculated thanks to layout algo in GraphBuilder to node dataframe
     """
-    position_df = pd.DataFrame(position).T.reset_index().rename(
-        columns={0: column_names.node_pos_x, 1: column_names.node_pos_y, "index": column_names.node_id}
+    position_df = (
+        pd.DataFrame(position)
+        .T.reset_index()
+        .rename(
+            columns={
+                0: column_names.node_pos_x,
+                1: column_names.node_pos_y,
+                "index": column_names.node_id,
+            }
+        )
     )
     nodes = nodes.merge(position_df, how="right", on=column_names.node_id)
     return nodes
@@ -128,8 +165,12 @@ def merge_communities2nodes(communities, nodes):
     """
     Merge communities data calculated thanks to community detection algo in Graphbuilder to node dataframe
     """
-    communities_df = pd.DataFrame([communities]).T.reset_index().rename(
-        columns={"index": column_names.node_id, 0: column_names.nodes_community}
+    communities_df = (
+        pd.DataFrame([communities])
+        .T.reset_index()
+        .rename(
+            columns={"index": column_names.node_id, 0: column_names.nodes_community}
+        )
     )
     nodes = nodes.merge(communities_df, how="left", on=column_names.node_id)
     return nodes
@@ -142,13 +183,27 @@ def merge_edges_size_date2nodes(edges, nodes):
     hidden and not returned in search function)
     It also aggregates all RT and quotes dates of an account to facilitate the creation of the graph (dates are sorted)
     """
-    nodes_size_date = edges[[column_names.edge_target, column_names.edge_size, column_names.edge_date]].groupby(column_names.edge_target).agg(
-        {column_names.edge_size: 'sum', column_names.edge_date: 'sum'}
-    ).reset_index()
-    nodes_size_date = nodes_size_date.rename(columns = {column_names.edge_date: column_names.node_edge_date})
-    nodes = nodes.merge(nodes_size_date, how="left", left_on=column_names.node_id, right_on=column_names.edge_target)
+    nodes_size_date = (
+        edges[
+            [column_names.edge_target, column_names.edge_size, column_names.edge_date]
+        ]
+        .groupby(column_names.edge_target)
+        .agg({column_names.edge_size: "sum", column_names.edge_date: "sum"})
+        .reset_index()
+    )
+    nodes_size_date = nodes_size_date.rename(
+        columns={column_names.edge_date: column_names.node_edge_date}
+    )
+    nodes = nodes.merge(
+        nodes_size_date,
+        how="left",
+        left_on=column_names.node_id,
+        right_on=column_names.edge_target,
+    )
     nodes[column_names.node_size] = nodes[column_names.node_size].fillna(0)
-    nodes[column_names.node_edge_date] = nodes[column_names.node_edge_date].apply(lambda d: sorted(d) if isinstance(d, list) else [])
+    nodes[column_names.node_edge_date] = nodes[column_names.node_edge_date].apply(
+        lambda d: sorted(d) if isinstance(d, list) else []
+    )
     return nodes
 
 
@@ -156,15 +211,19 @@ def create_json_output(nodes, edges, position, communities):
     """
     Create a json output with nodes and edges, merge positions and communities information at the user level
     """
-    #merge nodes with other datasets
+    # merge nodes with other datasets
     nodes = merge_positions2nodes(position, nodes)
     nodes = merge_communities2nodes(communities, nodes)
     nodes = merge_edges_size_date2nodes(edges, nodes)
     # create metadata field in nodes en edges dataframes
-    nodes[column_names.node_metadata] = nodes.apply(lambda x: {col: x[col] for col in nodes_columns_metadata}, axis=1)
-    edges[column_names.edge_metadata] = edges.apply(lambda x: {col: x[col] for col in edges_columns_metadata}, axis=1)
+    nodes[column_names.node_metadata] = nodes.apply(
+        lambda x: {col: x[col] for col in nodes_columns_metadata}, axis=1
+    )
+    edges[column_names.edge_metadata] = edges.apply(
+        lambda x: {col: x[col] for col in edges_columns_metadata}, axis=1
+    )
     output = {
-        "edges": edges[edges_columns_export].to_dict('records'),
-        "nodes": nodes[nodes_columns_export].to_dict('records')
+        "edges": edges[edges_columns_export].to_dict("records"),
+        "nodes": nodes[nodes_columns_export].to_dict("records"),
     }
     return output

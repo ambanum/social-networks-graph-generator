@@ -6,13 +6,13 @@ nodes_columns_metadata = [
     column_names.node_url_tweet,
     column_names.node_url_quoted,
     column_names.node_url_RT,
-    column_names.node_edge_date
+    column_names.node_edge_date,
 ]
 
 edges_columns_metadata = [
     column_names.node_date,
     column_names.node_url_quoted,
-    column_names.node_url_RT
+    column_names.node_url_RT,
 ]
 
 
@@ -23,7 +23,7 @@ edges_columns_export = [
     column_names.edge_url_label,
     column_names.edge_id,
     column_names.edge_type,
-    column_names.edge_metadata
+    column_names.edge_metadata,
 ]
 
 nodes_columns_export = [
@@ -34,6 +34,5 @@ nodes_columns_export = [
     column_names.node_metadata,
     column_names.node_pos_x,
     column_names.node_pos_y,
-    column_names.nodes_community
-
+    column_names.nodes_community,
 ]
