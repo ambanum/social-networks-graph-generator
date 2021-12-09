@@ -109,9 +109,67 @@ The `metadata` field contains additional information about the search and the re
 
 ## Graph
 
-A png file can be exported using the `--export_graph` command line option (or the 
+A png file can be exported using the `--img_path` command line option (or the 
 export_img_graph()` method of `GraphBuilder`).
 The file allows you to quickly visualize the shape of the graph and thus test different types of layout.
+
+
+## Example layout
+
+Using the following command in the terminal:
+```commandline
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+```
+or in your Python script
+
+```commandline
+from graphgenerator import GraphBuilder
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+layout_algo = "spring" # or in ["kamada_kawai", "spiral", "circular", "random"]
+GB = GraphBuilder(
+    search = "#boycottfrance",
+    since = "2021-12-02",
+    minretweets = 1,
+    maxresults = 1000
+)
+GB.collect_tweets()
+GB.clean_nodes_edges()
+GB.create_graph(layout_algo)
+
+# Get graph using either GraphBuilder or networkx library + matplotlib  
+GB.export_graph("graph.png") 
+#or if you want to visualise the graph directly in your IDE (Jupyter Notebook for example)
+plt.figure(figsize=(30, 30))
+nx.draw_networkx(
+    GB.G, pos=GB.positions, arrows=True, with_labels=True, 
+    font_size=5, node_size=10, alpha=0.5,
+) 
+
+```
+
+you  get the following results (code was run on 09/12/2021):
+
+|      Spiral Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spiral.png "Spiral")       |          Spring Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spring.png "Spring")           |
+|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|
+| **Circular Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_circular.png "Circular") | **Kamada Kawai Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_kamada_kawai.png "Kamada Kawai") |
+|      **Random Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_random.png "Random")      |                                                                                                         
+
+
+## Example community detection 
+
+Using the following code in the terminal (`"community_algo"` must be taken in  
+`["greedy_modularity", "asyn_lpa_communities", "girvan_newman", "label_propagation", "louvain"]`) :
+```commandline
+graphgenerator "#boycottfrance" --layout_algo "spring" --community_algo "community_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+```
+Depending on the algorithm you use, you will get the following resultats (the color indicates the community)
+
+|         Girvan Newman <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_girvan_newman.png "Girvan Newmann")         | Greedy Modularity <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_greedy_modularity.png "Greedy modularity") |
+|:--------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| **Label Propagation** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_label_propagation.png "Label Propagation") |             **Louvain** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_louvain.png "Louvain")              |
 
 
 # Méthodologie
@@ -224,6 +282,63 @@ Le champs `metadata` contient des informations additionnelles sur la recherche e
 
 ## Graph
 
-Un fichier png peut être exporté en utilisant l'option `--export_graph` en ligne de commande (ou la méthode 
+Un fichier png peut être exporté en utilisant l'option `--img_graph` en ligne de commande (ou la méthode 
 `export_img_graph()` de `GraphBuilder`).
 Le fichier permet de visualiser rapidement la forme du graph et donc de tester différents types de 'layout'.
+
+
+
+## Exemple layout
+
+En utilisant le code suivant dans le terminal:
+```commandline
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+```
+ou dans un script Python:
+```commandline
+from graphgenerator import GraphBuilder
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+layout_algo = "spring" # or in ["kamada_kawai", "spiral", "circular", "random"]
+GB = GraphBuilder(
+    search = "#boycottfrance",
+    since = "2021-12-02",
+    minretweets = 1,
+    maxresults = 1000
+)
+GB.collect_tweets()
+GB.clean_nodes_edges()
+GB.create_graph(layout_algo)
+
+# Get graph using either GraphBuilder or networkx library + matplotlib  
+GB.export_graph("graph.png") 
+#or if you want to visualise the graph directly in your IDE (Jupyter Notebook for example)
+plt.figure(figsize=(30, 30))
+nx.draw_networkx(
+    GB.G, pos=GB.positions, arrows=True, with_labels=True, 
+    font_size=5, node_size=10, alpha=0.5,
+) 
+
+```
+Vous obtiendrez les résultats suivants (le code a été executé le 09/12/2021):
+
+|      Spiral Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spiral.png "Spiral")       |          Spring Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spring.png "Spring")           |
+|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|
+| **Circular Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_circular.png "Circular") | **Kamada Kawai Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_kamada_kawai.png "Kamada Kawai") |
+|      **Random Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_random.png "Random")      |                                                                                                         
+
+## Example détection de cluster
+
+En utilisant le code suivant dans le terminal (`"community_algo"` doit être pris dans 
+`["greedy_modularity", "asyn_lpa_communities", "girvan_newman", "label_propagation", "louvain"]`) :
+```commandline
+graphgenerator "#boycottfrance" --layout_algo "spring" --community_algo "community_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+```
+Suivant l'algorithme utilisé, on obtient ces résultats (les couleurs indiques l'appartenance à une communauté)
+
+|         Girvan Newman <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_girvan_newman.png "Girvan Newmann")         | Greedy Modularity <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_greedy_modularity.png "Greedy modularity") |
+|:--------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| **Label Propagation** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_label_propagation.png "Label Propagation") |             **Louvain** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_louvain.png "Louvain")              |
+

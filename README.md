@@ -67,9 +67,9 @@ To get the graph of a keyword or hashtag, you can do so (using cli command)
 ```
 # by search: this will use snscrape to get the data
 graphgenerator "#hashtag"
-graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --output_path="output.json" 
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --json_path="output.json" 
 # if you want to visualise the graph, you can choose to export a jpeg file of it 
-graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --output_path="output.json" --export_graph --path_graph="graph.png"
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --json_path="output.json" --img_path="graph.png"
 ```
 
 Or you can choose to load graphgenerator as a library and use GraphBuilder class directly in your Python script
