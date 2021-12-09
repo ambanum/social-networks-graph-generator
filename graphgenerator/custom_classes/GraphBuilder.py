@@ -28,22 +28,23 @@ class GraphBuilder:
     accounts mentioning this topic
     """
 
-    def __init__(self, keyword, since, minretweets=1, maxresults=None):
+    def __init__(self, search, since, minretweets=1, maxresults=None):
         """
         Init function of class GraphBuilder
             Parameters:
-                keyword (str): hashtag or keyword (or group of words) to search on Twitter
+                search (str): search you want to perform on Twitter (string that would type in twitter search bar)
                 since (str): date in format %Y-%m-%d from where to start search, it must fall in the 7 last days
                 otherwise it will be changed to the date 7 days ago (we can't get retweets from more than 7 days ago)
                 minretweets (int): minimal number of retweets a tweet should have to be collected
                 maxresults (int): maximum number of RT and quotes to include in the graph
         """
-        self.keyword = keyword
+        self.search = search
         self.minretweets = int(minretweets)
         self.maxresults = (
             None if (maxresults == "None") or (maxresults is None) else int(maxresults)
         )
-        self.get_valid_date(since)
+        self.since = since
+        self.get_valid_date()
         self.nodes_original = []
         self.nodes_RT_quoted = []
         self.nodes_original_done = []
@@ -60,31 +61,31 @@ class GraphBuilder:
         self.graph_created = False
         self.communities_detected = False
 
-    def get_valid_date(self, since, number_days=7):
+    def get_valid_date(self, number_days=7):
         """
         Return valid date in string format and datetime format. A date is valid if it falls in the past 7 days
         otherwise it will be changed to the date 7 days ago. We can't get retweets from more than 7 days ago.
         """
-        if datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz) >= (
+        if datetime.strptime(self.since, "%Y-%m-%d").replace(tzinfo=tz) >= (
             datetime.now(tz=tz) - timedelta(days=number_days)
         ):
-            self.since = since
-            self.since_dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=tz)
+            self.min_date = self.since
+            self.min_date_dt = datetime.strptime(self.since, "%Y-%m-%d").replace(tzinfo=tz)
         else:
-            self.since = (datetime.now(tz=tz) - timedelta(days=number_days)).strftime(
+            self.min_date = (datetime.now(tz=tz) - timedelta(days=number_days)).strftime(
                 "%Y-%m-%d"
             )
-            self.since_dt = datetime.now(tz=tz) - timedelta(days=number_days)
+            self.min_date_dt = datetime.now(tz=tz) - timedelta(days=number_days)
 
     def is_valid_tweet(self, tweet, source_tweet):
         """
         Is tweet valid i.e. :
-        - the source tweet was published after the specified date in since
+        - the source tweet was published after the specified date in since (or in the last 7 days)
         - the number of retweet to consider is above the number of retweets specified in Class
         - the user is not retweeting or mentioning him/herself
         """
         return (
-            (source_tweet.date > self.since_dt)
+            (source_tweet.date > self.min_date_dt)
             & (tweet.user.username != source_tweet.user.username)
             & (source_tweet.retweetCount >= self.minretweets)
         )
@@ -95,10 +96,10 @@ class GraphBuilder:
         See https://github.com/igorbrigadir/twitter-advanced-search to get more details on how to perform advanced
         search in twitter.
         """
-        search = f"{self.keyword} {self.type_search}"
-        if self.since:
-            search += f" since:{self.since}"
-        return search
+        search_final = f"{self.search} {self.type_search}"
+        if self.min_date:
+            search_final += f" since:{self.min_date}"
+        return search_final
 
     def collect_tweets(self):
         """
@@ -106,6 +107,9 @@ class GraphBuilder:
         data collection stopped when their ist no longer tweet to collect or if the maximum number of tweets to collect
         is reached
         Tweets are saved in lists depending on the type of tweets (Retweet, quote or source tweet)
+        Here we do not use snscrape cli command but directly its associated package through the TwitterSearchScraper
+        module, thus the maxresults is not the same as in the cli command, here it refers to the maximum number of
+        valid tweets (see the .is_valid_tweet() method to get a definition of valid tweet)
         """
         if not self.data_collected:
             search = self.create_search()
@@ -210,12 +214,12 @@ class GraphBuilder:
                 "graph needs to be created thanks to .creat_graph() before using this command"
             )
 
-    def export_img_graph(self, path_graph="Graph.png"):
+    def export_img_graph(self, img_path="Graph.png"):
         """
         Export an image (png file) of the network
         It is a very basic image here you can juste visualise the connection between the nodes
             Parameters:
-                 path_graph (str): path where to export img file of the graph
+                 img_path (str): path where to export img file of the graph
         """
         if self.graph_created:
             plt.figure(figsize=(30, 30))
@@ -223,29 +227,29 @@ class GraphBuilder:
                 self.G,
                 pos=self.positions,
                 arrows=True,
-                with_labels=False,
-                font_size=15,
+                with_labels=True,
+                font_size=5,
                 node_size=10,
                 alpha=0.5,
             )
-            plt.savefig(path_graph, format="PNG")
+            plt.savefig(img_path, format="PNG")
         else:
             raise Exception(
                 "graph needs to be created thanks to .creat_graph() before using this command"
             )
 
-    def export_json_output(self, output_path="output.json"):
+    def export_json_output(self, json_path="output.json"):
         """
         Create a clean json output containing the nodes, the edges and some other information (in metadata)
             Parameters:
-                output_path (str): path where to export the json
+                json_path (str): path where to export the json
         """
         if self.communities_detected:
             json_output = create_json_output(
                 self.nodes, self.edges, self.positions, self.communities
             )
             json_output["metadata"] = {
-                "keyword": self.keyword,
+                "search": self.search,
                 "since": self.since,
                 "type_search": self.type_search,
                 "maxresults": self.maxresults,
@@ -253,7 +257,7 @@ class GraphBuilder:
                 "last_collected_tweet": self.last_collected_tweet,
                 "last_collected_date": str(self.last_collected_date),
             }
-            with open(output_path, "w") as outfile:
+            with open(json_path, "w") as outfile:
                 json.dump(json_output, outfile)
         else:
             raise Exception(

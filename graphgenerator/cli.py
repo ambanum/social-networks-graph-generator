@@ -14,7 +14,7 @@ from graphgenerator.config import tz
 
 
 @click.command()
-@click.argument("keyword", default="")
+@click.argument("search", default="")
 @click.option(
     "-r",
     "--minretweets",
@@ -24,8 +24,8 @@ from graphgenerator.config import tz
 @click.option(
     "-d",
     "--since",
-    default=(datetime.now(tz=tz) - timedelta(days=7)).strftime("%Y-%m-%d"),
-    help="The date up to which we will look for tweets, default is: today's date - 7 days (limit to get the retweets)",
+    default="2004-01-01",
+    help="The date up to which we will look for tweets, the graphgenerator can only get last 7 days Retweets",
     show_default=True,
 )
 @click.option(
@@ -60,33 +60,29 @@ from graphgenerator.config import tz
     show_default=True,
 )
 @click.option(
-    "-o",
-    "--output_path",
+    "-j",
+    "--json_path",
     default="output.json",
     help="Path where to export the final Json containing nodes and hedges information",
     show_default=True,
 )
 @click.option(
-    "-g", "--export_graph", is_flag=True, help="Export a jpeg file of the network"
-)
-@click.option(
-    "-j",
-    "--graph_path",
-    default="graph.png",
-    help="Path where to export graph png file",
+    "-i",
+    "--img_path",
+    default="no_img_file",
+    help="Path where to export graph png file, if not specified then no graph is exported",
     show_default=True,
 )
 @click.option("-v", "--version", is_flag=True, help="Get version of the package")
 def main(
     version,
-    keyword,
-    output_path,
+    search,
+    json_path,
     minretweets,
     since,
     maxresults,
     layout_algo,
-    export_graph,
-    graph_path,
+    img_path,
     community_algo,
 ):
     """
@@ -99,12 +95,12 @@ def main(
     """
     if version:
         print(__version__)
-    elif keyword == "":
-        print("use 'graphgenerator --help' to see how to use the command")
+    elif search == "":
+        print(__version__)
     else:
         start = datetime.now()
         NB = GraphBuilder(
-            keyword=keyword, minretweets=minretweets, since=since, maxresults=maxresults
+            search=search, minretweets=minretweets, since=since, maxresults=maxresults
         )
         NB.collect_tweets()
         print("Data collection ended, time of execution is:", datetime.now() - start)
@@ -113,9 +109,9 @@ def main(
         print("Graph creation ended, time of execution is:", datetime.now() - start)
         NB.find_communities(community_algo)
         print("Communities algo ended, time of execution is:", datetime.now() - start)
-        if export_graph:
-            NB.export_img_graph(graph_path)
-        NB.export_json_output(output_path)
+        if img_path != "no_img_file":
+            NB.export_img_graph(img_path)
+        NB.export_json_output(json_path)
         end = datetime.now()
         print("The time of execution of the whole program is :", end - start)
 
