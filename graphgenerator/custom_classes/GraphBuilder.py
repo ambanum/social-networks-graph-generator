@@ -18,7 +18,7 @@ from graphgenerator.utils.tweet_extraction import (
     return_source_tweet,
 )
 from graphgenerator.utils.toolbox import layout_functions, community_functions
-from graphgenerator.config import tz
+from graphgenerator.config import tz, column_names
 
 
 class GraphBuilder:
@@ -55,6 +55,8 @@ class GraphBuilder:
         self.positions = []
         self.communities = {}
         self.last_collected_tweet = ""
+        self.most_recent_tweet = ""
+        self.data_collection_date = ""
         self.last_collected_date = ""
         self.data_collected = False
         self.data_cleaned = False
@@ -112,12 +114,15 @@ class GraphBuilder:
         valid tweets (see the .is_valid_tweet() method to get a definition of valid tweet)
         """
         if not self.data_collected:
+            self.data_collection_date = datetime.today()
             search = self.create_search()
             print(search)
             n_valid_tweet = 0
             for i, tweet in enumerate(
                 sntwitter.TwitterSearchScraper(search).get_items()
             ):
+                if i == 0:
+                    self.most_recent_tweet = tweet.id
                 is_RT_or_quoted = return_type_source_tweet(tweet)
                 if is_RT_or_quoted:
                     source_tweet = return_source_tweet(tweet)
@@ -149,6 +154,7 @@ class GraphBuilder:
         if self.data_collected:
             if len(self.edges):
                 self.edges = clean_edges(self.edges, self.last_collected_date)
+                #self.most_recent_tweet = self.edges[column_names.edge_source_date].max()
                 if len(self.edges):
                     self.nodes = concat_clean_nodes(
                         self.nodes_RT_quoted,
@@ -249,13 +255,15 @@ class GraphBuilder:
                 self.nodes, self.edges, self.positions, self.communities
             )
             json_output["metadata"] = {
-                "search": self.search,
-                "since": self.since,
-                "type_search": self.type_search,
-                "maxresults": self.maxresults,
-                "minretweets": self.minretweets,
-                "last_collected_tweet": self.last_collected_tweet,
-                "last_collected_date": str(self.last_collected_date),
+                column_names.metadata_search: self.search,
+                column_names.metadata_since: self.since,
+                column_names.metadata_type_search: self.type_search,
+                column_names.metadata_maxresults: self.maxresults,
+                column_names.metadata_minretweets: self.minretweets,
+                column_names.metadata_last_collected_tweet: self.last_collected_tweet,
+                column_names.metadata_last_collected_date: str(self.last_collected_date),
+                column_names.metadata_data_collection_date: str(self.data_collection_date),
+                column_names.metadata_most_recent_tweet: str(self.most_recent_tweet),
             }
             with open(json_path, "w") as outfile:
                 json.dump(json_output, outfile)

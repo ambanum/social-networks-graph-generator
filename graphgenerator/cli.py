@@ -7,6 +7,7 @@ Created on Thu Nov 24 17:22:29 2021
 
 import click
 from datetime import datetime, timedelta
+import json
 
 from graphgenerator.version import __version__
 from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
@@ -20,6 +21,13 @@ from graphgenerator.config import tz
     "--minretweets",
     default=1,
     help="The minimal number of retweets a tweet must have for us to fetch its retweeters",
+)
+@click.option(
+    "-f",
+    "--from_json_path",
+    default="no_input",
+    help="Path to json file containing graph built thanks to graphgenerator command",
+    show_default=True,
 )
 @click.option(
     "-d",
@@ -84,6 +92,7 @@ def main(
     layout_algo,
     img_path,
     community_algo,
+    from_json_path,
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
@@ -95,9 +104,13 @@ def main(
     """
     if version:
         print(__version__)
-    elif search == "":
+    elif search == "" and from_json_path == "no_input":
         print(__version__)
-    else:
+    elif search == "" and from_json_path != "no_input":
+        #load json
+        with open(from_json_path, "r") as file:
+            input_json = json.load(file)
+    elif search != "" and from_json_path == "no_input":
         start = datetime.now()
         NB = GraphBuilder(
             search=search, minretweets=minretweets, since=since, maxresults=maxresults
