@@ -11,7 +11,7 @@ import json
 
 from graphgenerator.version import __version__
 from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
-from graphgenerator.config import tz
+from graphgenerator.config import column_names
 
 
 @click.command()
@@ -24,7 +24,7 @@ from graphgenerator.config import tz
 )
 @click.option(
     "-f",
-    "--from_json_path",
+    "--input_graph_json_path",
     default="no_input",
     help="Path to json file containing graph built thanks to graphgenerator command",
     show_default=True,
@@ -92,7 +92,7 @@ def main(
     layout_algo,
     img_path,
     community_algo,
-    from_json_path,
+    input_graph_json_path,
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
@@ -104,13 +104,19 @@ def main(
     """
     if version:
         print(__version__)
-    elif search == "" and from_json_path == "no_input":
+    elif search == "" and input_graph_json_path == "no_input":
         print(__version__)
-    elif search == "" and from_json_path != "no_input":
+    elif search == "" and input_graph_json_path != "no_input":
         #load json
-        with open(from_json_path, "r") as file:
+        with open(input_graph_json_path, "r") as file:
             input_json = json.load(file)
-    elif search != "" and from_json_path == "no_input":
+        NB = GraphBuilder(
+            search=input_json["metadata"][column_names.metadata_search] + " since_id:%s" % input_json["metadata"][column_names.metadata_last_collected_tweet],
+            minretweets=input_json["metadata"][column_names.metadata_minretweets],
+            since="2004-01-01"
+        )
+        NB.collect_tweets()
+    elif search != "" and input_graph_json_path == "no_input":
         start = datetime.now()
         NB = GraphBuilder(
             search=search, minretweets=minretweets, since=since, maxresults=maxresults

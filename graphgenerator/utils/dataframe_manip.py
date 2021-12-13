@@ -117,7 +117,50 @@ def aggregate_node_data(nodes):
     return nodes
 
 
-def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
+def deaggraggate_node_dataframe(old_nodes):
+    """
+    Nodes dataframe needs to be deaggragted as data are aggregate in lists at the user level
+    In order to be reaggregated with the new data, it must be deaggragated
+    To ensure that elements are aggregated in the right order at the user level (make sur that dates are ordered)
+    To do so, intermediate table ist created for each column, it is deaggregated and merged with the user information
+    """
+    old_nodes_deag = old_nodes[[column_names.node_label]].copy()
+    i = 1
+    for col in [
+        column_names.node_date,
+        column_names.node_url_tweet,
+        column_names.node_url_quoted,
+        column_names.node_url_RT
+    ]:
+        temp_data = old_nodes[col].apply(pd.Series).merge(
+            old_nodes[[column_names.node_label]], left_index=True, right_index=True
+        ).melt(
+            id_vars=[column_names.node_label],
+            value_name=col)
+        if i == 1:
+            old_nodes_deag = old_nodes_deag.merge(temp_data, how="right", on=column_names.node_label)
+        else:
+            old_nodes_deag = old_nodes_deag.merge(temp_data, how="right", on=[column_names.node_label, "variable"])
+        i += 1
+    old_nodes_deag = old_nodes_deag.dropna(how="any")
+    return old_nodes_deag
+
+
+def input_graph_json2node_df(input_graph_json):
+    """
+    Transform output of graphgenerator into a dataframe containing informations related to the nodes
+    Format must be similar to the dataframe produced by the cleaning functions after data collection
+    It consists in doing the inverted process (deaggregate data) to allow for merging with new data
+    """
+    nodes = pd.DataFrame(input_graph_json["nodes"])
+    nodes = nodes.join(pd.json_normalize(nodes["metadata"]))
+    nodes = nodes.drop(["metadata"], axis=1)
+    nodes["table_id"] = 0
+    nodes = deaggraggate_node_dataframe(nodes)
+    return nodes
+
+
+def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date, input_graph_json):
     """
     Concates nodes that are taken from tweets which are Retweets or tweets qu (nodes_RT_quoted) and original tweets which
     have been retweeted or quoted
@@ -134,7 +177,12 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date):
     # aggregate retweet count at the user level to create a new variable which will be the size of the node
     # nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
     # aggregate data at the user level
-    nodes = aggregate_node_data(nodes)
+    if input_graph_json:
+        old_nodes = input_graph_json2node_df(input_graph_json)
+        nodes = pd.con
+        pass
+    else:
+        nodes = aggregate_node_data(nodes)
     # keep the first value of the type of tweet as a label
     nodes[column_names.node_type_tweet] = nodes[column_names.node_type_tweet].apply(
         lambda x: x[0]

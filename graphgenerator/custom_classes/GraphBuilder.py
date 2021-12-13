@@ -146,7 +146,7 @@ class GraphBuilder:
                 "parameter"
             )
 
-    def clean_nodes_edges(self):
+    def clean_nodes_edges(self, input_graph_json={}):
         """
         Clean node and edges files and delete old files that are not usefull anymore, to save memory
         Data is then stored in two dataframes, one containing nodes and the other containing edges
@@ -154,13 +154,21 @@ class GraphBuilder:
         if self.data_collected:
             if len(self.edges):
                 self.edges = clean_edges(self.edges, self.last_collected_date)
-                #self.most_recent_tweet = self.edges[column_names.edge_source_date].max()
                 if len(self.edges):
-                    self.nodes = concat_clean_nodes(
-                        self.nodes_RT_quoted,
-                        self.nodes_original,
-                        self.last_collected_date,
-                    )
+                    if input_graph_json:
+                        self.nodes = concat_clean_nodes(
+                            self.nodes_RT_quoted,
+                            self.nodes_original,
+                            self.last_collected_date,
+                            input_graph_json
+                        )
+                    else:
+                        self.nodes = concat_clean_nodes(
+                            self.nodes_RT_quoted,
+                            self.nodes_original,
+                            self.last_collected_date,
+                            input_graph_json
+                        )
                     del self.nodes_original
                     del self.nodes_RT_quoted
                     self.data_cleaned = True
@@ -188,7 +196,7 @@ class GraphBuilder:
         """
         if self.data_cleaned:
             self.G = nx.from_pandas_edgelist(
-                self.edges, source="source", target="target", edge_attr="size"
+                self.edges, source=column_names.edge_source, target=column_names.edge_target, edge_attr=column_names.edge_size
             )
             position_function = layout_functions[layout_algo]["function"]
             self.positions = position_function(
