@@ -1,4 +1,5 @@
 import setuptools
+from graphgenerator.version import __version__
 
 # https://www.freecodecamp.org/news/build-your-first-python-package/
 
@@ -21,9 +22,15 @@ setuptools.setup(
     use_scm_version=False,
     include_package_data=True,
     install_requires=[
-        "click==8.0.1",
-        "joblib==1.0.1",
+        "setuptools-scm==6.3.2",
+        "networkx==2.6.3",
         "pandas==1.2.5",
+        "click==8.0.1",
+        "pytz==2021.3",
+        "matplotlib==3.5.0",
+        "python-louvain==0.15",
+        "snscrape @ git+https://github.com/JustAnotherArchivist/snscrape.git@a6b6f3faaa26f541d9469651451340096b5abc92#egg=snscrape"
+
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",

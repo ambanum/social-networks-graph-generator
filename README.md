@@ -2,8 +2,7 @@
 
 # social-networks-graph-generator
 
-A simple classifier for twitter bot accounts based on Random Forest Algorithm
-
+A graph generator to visualise links between twitter accounts for a specific keyword or hashtag
 See our [Methodology](./explanation.md) for graph generation
 
 ## Install for common usage with pip
@@ -19,7 +18,7 @@ source social-networks-graph-generator/bin/activate
 Install
 
 ```
-pip3 install social-networks-graph-generator
+pip3 install git+https://github.com/ambanum/social-networks-graph-generator
 ```
 
 Then you can launch `graphgenerator`
@@ -63,26 +62,108 @@ Then you can use `./graphgenerator-dev.py` as an executable command
 
 # Usage
 
-To get the bot score probability of a user account, you can do so
+To get the graph of a keyword or hashtag, you can do so (using cli command)
 
 ```
 # by search: this will use snscrape to get the data
-graphgenerator username
 graphgenerator "#hashtag"
-graphgenerator "#hashtag" --maxresults=1000
-graphgenerator "#hashtag" --since="2004-01-01" --maxresults=1000
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --json_path="output.json" 
+# if you want to visualise the graph, you can choose to export a png file of it 
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --json_path="output.json" --img_path="graph.png"
+```
+
+Or you can choose to load graphgenerator as a library and use GraphBuilder class directly in your Python script
+
+```
+#import library 
+from graphgenerator import GraphBuilder
+# initialize Graph builder class
+GB = GraphBuilder(
+    keyword="#hashtag", 
+    minretweets=1, 
+    since="2021-12-05", 
+    maxresults=None
+)
+
+# collect tweets, here we collect retweet and quotes of tweets mentionning "#hashtag" since "2021-12-05" (collect can only back max to 7 days)
+NB.collect_tweets()
+
+# create node and edges pandas dataframe (NB.nodes and NB.edges) 
+NB.clean_nodes_edges()
+
+# create graph object (networkx format, stored in NB.G) and calculate position of the nodes using layout_algo)
+NB.create_graph(layout_algo="spring")
+
+# look for communities in the graph using community_algo
+NB.find_communities(community_algo)
+
+#export an image of the graph (this part is optionnal)
+NB.export_img_graph(graph_path)
+
+# export graph in a json format containing information about nodes and edges
+NB.export_json_output(output_path)
 ```
 
 ## Example
 
 ```
-graphgenerator ambnum
+ graphgenerator "ambnum" --minretweets 10
 ```
 
 will return
 
 ```json
-// TODO
+{
+    "edges":
+    [
+        {
+            "source": "AmbNum",
+            "target": "MPubliques",
+            "size": 1,
+            "label": "has RT",
+            "id": "edge_0",
+            "type": "arrow",
+            "metadata":
+            {
+                "date": ["2021-12-02 09:32:09+00:00"],
+                "quoted": [""],
+                "RT": ["https://twitter.com/AmbNum/status/1466339393812193283"]
+            }
+        },
+        ...
+    ],
+    "nodes":
+    [
+        {
+            "id": "AmbNum",
+            "label": "@AmbNum",
+            "size": 0.0,
+            "from": "has RT",
+            "metadata":
+            {
+                "date": ["2021-12-01 16:24:47+00:00", "2021-12-02 09:32:09+00:00"],
+                "tweets": ["", ""],
+                "quoted": ["", ""],
+                "RT": ["https://twitter.com/AmbNum/status/1466080848147529731", "https://twitter.com/AmbNum/status/1466339393812193283"],
+                "dates_edges": []
+            },
+            "x": 0.9420867798959837,
+            "y": -0.3153417838051506,
+            "community_id": 1
+        },
+        ...
+    ],
+    "metadata":
+    {
+        "keyword": "ambnum",
+        "since": "2021-11-29",
+        "type_search": "include:nativeretweets",
+        "maxresults": 10,
+        "minretweets": 1,
+        "last_collected_tweet": 1465613154193399813,
+        "last_collected_date": "2021-11-30 09:26:20+00:00"
+    }
+}
 ```
 
 ## Using Docker
