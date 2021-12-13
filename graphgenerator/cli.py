@@ -32,7 +32,7 @@ from graphgenerator.config import tz
     "-m",
     "--maxresults",
     default="None",
-    help="The maximal number of tweets that we will look at",
+    help="The maximal number of tweets that will be retrieved",
     show_default=True,
 )
 @click.option(
@@ -56,7 +56,7 @@ from graphgenerator.config import tz
             "louvain",
         ]
     ),
-    help="The algorithm to use to identify communities in the graph",
+    help="The algorithm used to identify communities in the graph",
     show_default=True,
 )
 @click.option(
