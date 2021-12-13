@@ -7,9 +7,9 @@ given.
 
 ## Collecting tweets
 
-The data is collected by `Graphgenerator` using the collection tool `snscrape`. This tool collects the data
-that is displayed when you search in the Twitter search bar. It only allows to retrieve 
-the retweets of the last seven days (beyond that only tweets and quotes can be collected). The 
+The data is collected by `Graphgenerator` using the scraping tool `snscrape`. This tool collects the data
+that is displayed when you search using the Twitter search bar. It only allows to retrieve 
+the retweets of the last seven days (beyond that, only tweets and quotes can be collected). The 
 collection is limited to the last seven days.
 
 `Graphgenerator` collects all tweets that are retweets or quotes of tweets mentioning the hashtag 
@@ -26,7 +26,7 @@ Two Twitter accounts are linked if one quotes or retweets the other's tweet. A d
 to the link. Weights are allocated to each link and correspond to the number of occurrences of this link (total number of retweets and 
 quotes from one account to the other). 
 
-The data are also aggregated at the account level which form the nodes of the graph. The size assigned to them 
+The data is also aggregated at the account level which form the nodes of the graph. The size assigned to them 
 corresponds to the total number of tweets and quotes of tweets issued by this account.
 
 The data is put into graph format using the `networkx` library.
@@ -38,12 +38,12 @@ nodes.
 
 Several algorithms allow to compute the coordinates of the nodes of a graph to represent it as well as possible. 
 The objective is to summarize the information in the graph as well as possible while making it readable. 
-Generally the algorithms try to minimize the number of intersections of the links (by aesthetic consideration, 
-of readability), to bring closer together the nodes that have many links between them and to place the "central" nodes in the center of the graph (which allow
-"central" nodes (which allow information to circulate within the network).
+Generally the algorithms try to minimize the number of intersections of the links (for aesthetic considerations and to 
+ensure readability), to bring closer together the nodes that have many links between them and to place the "central" 
+nodes in the center of the graph (which allow "central" nodes (which allow information to circulate within the network).
 
 `networkx` provides many visualization possibilities and many of them are available in Graphgenerator. 
-We propose to use by default the spring or Fruchterman-Reingold (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) aglorithm.
+We propose to use by default the spring or Fruchterman-Reingold (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) algorithm.
 It works very well with large networks (which is our case).
 
 ## Communities
@@ -85,9 +85,9 @@ tweet of another account). For each link between accounts we have the following 
 List of twitter accounts that are quoted or RT or quote or RT a tweet containing the hashtag 
 searched. For each account, we have the following information:
 - `id`: account id
-- `label`: name of the twitter account
+- `label`: username or twitter handle
 - `size`: size of the node, i.e. number of times i was RT'd or quoted
-- `from`: name of the account
+- `from`: username or twitter handle
 - `community_id`: id of the community detected thanks to the community algorithm
 - `x`: x coordinate on the graph
 - `y`: y coordinate on the graph

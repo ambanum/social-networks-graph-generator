@@ -42,7 +42,7 @@ de lisibilité), de rapprocher les noeuds qui onet beaucoup de liens entre eux e
 "centraux" (qui permettent de faire circuler l'information au sein du réseau).
 
 `networkx` fournit de nombreuses possibilités de visualisations et une bonne partie sont disponibles dans Graphgenerator. 
-Nous proposons d'utiliser par défaut l'aglorithme spring ou Fruchterman-Reingold (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html).
+Nous proposons d'utiliser par défaut l'algorithme spring ou Fruchterman-Reingold (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html).
 Il fonctionne très bien avec de larges réseaux (ce qui est notre cas).
 
 ## Communautés
@@ -85,9 +85,9 @@ tweet d'un autre compte). Pour chaque liens entre les comptes on dispose des inf
 Liste des comptes twitter qui sont mentionnés ou RT ou alors qui mentionnent ou RT un tweet contenant le hashtag 
 recherché. POur chaque comptes, on dispose des informations suivantes:
 - `id`: id du compte
-- `label`: nom du compte twitter
+- `label`: nom de l'utilisateur
 - `size`: taille du noeud, i.e. nombre de fois où i la été RT ou mentionné
-- `from`
+- `from`: nom de l'utilisateur
 - `community_id`: id du cluster détecté grâce à l'algo de communauté
 - `x`: coordonnées x du noeud dans le graph
 - `y`: coordonnées y du noeud dans le graph
