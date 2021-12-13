@@ -107,7 +107,7 @@ NB.export_json_output(output_path)
 ## Example
 
 ```
- graphgenerator "ambnum" --minretweets 10
+ graphgenerator "ambnum" --maxresults 10
 ```
 
 will return
