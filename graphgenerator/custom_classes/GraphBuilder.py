@@ -114,7 +114,7 @@ class GraphBuilder:
         valid tweets (see the .is_valid_tweet() method to get a definition of valid tweet)
         """
         if not self.data_collected:
-            self.data_collection_date = datetime.today()
+            self.data_collection_date = datetime.now(tz=tz)
             search = self.create_search()
             print(search)
             n_valid_tweet = 0
@@ -150,33 +150,34 @@ class GraphBuilder:
         """
         Clean node and edges files and delete old files that are not usefull anymore, to save memory
         Data is then stored in two dataframes, one containing nodes and the other containing edges
+        If input_graph_json is not empty then it will merge the new nodes and edges to the old data contained
+        in the input_graph_json file
+            Parameters:
+                input_graph_json (dict): graph in json format, output of grapgenerator command
         """
         if self.data_collected:
             if len(self.edges):
-                self.edges = clean_edges(self.edges, self.last_collected_date)
-                if len(self.edges):
-                    if input_graph_json:
-                        self.nodes = concat_clean_nodes(
-                            self.nodes_RT_quoted,
-                            self.nodes_original,
-                            self.last_collected_date,
-                            input_graph_json
-                        )
-                    else:
-                        self.nodes = concat_clean_nodes(
-                            self.nodes_RT_quoted,
-                            self.nodes_original,
-                            self.last_collected_date,
-                            input_graph_json
-                        )
+                self.edges = clean_edges(self.edges, self.last_collected_date, input_graph_json)
+                if len(self.edges) or input_graph_json:
+                    self.nodes = concat_clean_nodes(
+                        self.nodes_RT_quoted,
+                        self.nodes_original,
+                        self.last_collected_date,
+                        input_graph_json
+                    )
                     del self.nodes_original
                     del self.nodes_RT_quoted
                     self.data_cleaned = True
                 else:
-                    raise Exception(
-                        "No enough tweets found to build graph. Try using other parameters "
-                        "(for example decreasing the maximum number of retweets or extending the research window)"
+                    if input_graph_json:
+                        raise Exception("No new data to add to existing graph")
+                    else:
+                        raise Exception(
+                            "No enough tweets found to build graph. Try using other parameters "
+                            "(for example decreasing the maximum number of retweets or extending the research window)"
                     )
+            elif input_graph_json and len(self.edges) == 0:
+                raise Exception("No new data to add to existing graph")
             else:
                 raise Exception(
                     "No enough tweets found to build graph. Try using other parameters "
@@ -264,7 +265,7 @@ class GraphBuilder:
             )
             json_output["metadata"] = {
                 column_names.metadata_search: self.search,
-                column_names.metadata_since: self.since,
+                column_names.metadata_since: self.min_date,
                 column_names.metadata_type_search: self.type_search,
                 column_names.metadata_maxresults: self.maxresults,
                 column_names.metadata_minretweets: self.minretweets,

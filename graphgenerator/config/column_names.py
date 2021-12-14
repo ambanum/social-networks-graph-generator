@@ -37,3 +37,9 @@ metadata_last_collected_tweet = "last_collected_tweet"
 metadata_last_collected_date = "last_collected_date"
 metadata_data_collection_date = "data_collection_date"
 metadata_most_recent_tweet = "most_recent_tweet"
+
+col_mapping_type_tweet = {
+    node_url_tweet: "original",
+    node_url_quoted: "has quoted",
+    node_url_RT: "has RT"
+}

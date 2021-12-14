@@ -31,7 +31,40 @@ def aggregate_edge_data(edges):
     )
 
 
-def clean_edges(edges_list, limit_date):
+def input_graph_json2edge_df(input_graph_json):
+    """
+    Transform edge data from uploaded graph (in json version) into a dataframe to concatenate with new edges
+    """
+    edges = pd.DataFrame(input_graph_json["edges"])
+    edges = edges.join(pd.json_normalize(edges["metadata"]))
+    edges = edges.drop(["metadata", column_names.edge_id], axis=1)
+    edges["table_id"] = 0
+    return edges
+
+
+def concatenate_old_n_new_edges(input_graph_json, new_edges):
+    """
+    Concatenate old edges taken from input_graph_json with new edges from data collection
+    """
+    old_edges = input_graph_json2edge_df(input_graph_json)
+    new_edges["table_id"] = 1
+    edges = pd.concat([new_edges, old_edges])
+    edges = edges.sort_values("table_id")
+    edges = edges.groupby([column_names.edge_source, column_names.edge_target, column_names.edge_type]).agg(
+        {
+            col: "sum" for col in [
+            column_names.edge_size,
+            column_names.edge_date,
+            column_names.edge_url_RT,
+            column_names.edge_url_quoted
+        ]
+        }
+    ).reset_index()
+    edges[column_names.edge_url_label] = "has RT/quoted"
+    return edges
+
+
+def clean_edges(edges_list, limit_date, input_graph_json):
     """
     Transform list of edges into a clean dataframe aggregated at the edge level (connexion between two accounts) and
     keep only if date of source tweet is after date of last collected tweet, to be sure that we have all RT and quote
@@ -46,6 +79,9 @@ def clean_edges(edges_list, limit_date):
     edges = edges.sort_values(column_names.edge_date, ascending=True)
     # groupby id and aggregate all variables
     edges = aggregate_edge_data(edges)
+    # merge with elder edges from input_graph_json
+    if input_graph_json:
+        edges = concatenate_old_n_new_edges(input_graph_json, edges)
     # create edge index
     edges = edges.reset_index().rename(columns={"index": column_names.edge_id})
     edges[column_names.edge_id] = "edge_" + edges[column_names.edge_id].astype(str)
@@ -107,7 +143,7 @@ def aggregate_node_data(nodes):
                     column_names.node_url_quoted,
                     column_names.node_url_RT,
                     column_names.node_date,
-                    column_names.node_rt_count,
+                    #column_names.node_rt_count,
                     column_names.node_type_tweet,
                 ]
             }
@@ -123,6 +159,7 @@ def deaggraggate_node_dataframe(old_nodes):
     In order to be reaggregated with the new data, it must be deaggragated
     To ensure that elements are aggregated in the right order at the user level (make sur that dates are ordered)
     To do so, intermediate table ist created for each column, it is deaggregated and merged with the user information
+    Recreate column from based on list urls columns
     """
     old_nodes_deag = old_nodes[[column_names.node_label]].copy()
     i = 1
@@ -143,6 +180,15 @@ def deaggraggate_node_dataframe(old_nodes):
             old_nodes_deag = old_nodes_deag.merge(temp_data, how="right", on=[column_names.node_label, "variable"])
         i += 1
     old_nodes_deag = old_nodes_deag.dropna(how="any")
+
+    #create colum 'from' with the type of tweet
+    for col in column_names.col_mapping_type_tweet:
+        old_nodes_deag.loc[
+            old_nodes_deag[col].str.len() > 0, column_names.node_type_tweet
+        ] = column_names.col_mapping_type_tweet[col]
+        old_nodes_deag[col] = old_nodes_deag[col].apply(lambda x: x if len(x) else float("nan"))
+    old_nodes_deag[column_names.node_tweet_id
+    ] = old_nodes_deag["tweets"].fillna(old_nodes_deag["quoted"]).fillna(old_nodes_deag["retweets"])
     return old_nodes_deag
 
 
@@ -172,17 +218,16 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date, input_graph_
     nodes_RT_quoted = clean_nodes_RT_quoted(nodes_RT_quoted, limit_date)
     nodes_original = clean_nodes_tweet(nodes_original, limit_date)
     nodes = pd.concat([nodes_original, nodes_RT_quoted])
-    # drop duplicates
-    nodes = drop_duplicated_nodes(nodes)
     # aggregate retweet count at the user level to create a new variable which will be the size of the node
     # nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
-    # aggregate data at the user level
+    #if input_graph, concatenate with new nodes
     if input_graph_json:
         old_nodes = input_graph_json2node_df(input_graph_json)
-        nodes = pd.con
-        pass
-    else:
-        nodes = aggregate_node_data(nodes)
+        nodes = pd.concat([nodes, old_nodes])
+    # drop duplicates
+    nodes = drop_duplicated_nodes(nodes)
+    # aggregate data at the user level
+    nodes = aggregate_node_data(nodes)
     # keep the first value of the type of tweet as a label
     nodes[column_names.node_type_tweet] = nodes[column_names.node_type_tweet].apply(
         lambda x: x[0]
