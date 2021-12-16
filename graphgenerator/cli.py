@@ -7,10 +7,12 @@ Created on Thu Nov 24 17:22:29 2021
 
 import click
 from datetime import datetime, timedelta
+import json
+from dateutil import parser
 
 from graphgenerator.version import __version__
 from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
-from graphgenerator.config import tz
+from graphgenerator.config import column_names, tz
 
 
 @click.command()
@@ -20,6 +22,13 @@ from graphgenerator.config import tz
     "--minretweets",
     default=1,
     help="The minimal number of retweets a tweet must have for us to fetch its retweeters",
+)
+@click.option(
+    "-f",
+    "--input_graph_json_path",
+    default="no_input_graph",
+    help="Path to json file containing graph built thanks to graphgenerator command",
+    show_default=True,
 )
 @click.option(
     "-d",
@@ -84,27 +93,55 @@ def main(
     layout_algo,
     img_path,
     community_algo,
+    input_graph_json_path,
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
     The function is based on the use of the class GraphBuilder:
-        - it collects data
+        - it collects data and loads existing data if specified
         - clean data
         - create the graph object
         - export into json
     """
     if version:
         print(__version__)
-    elif search == "":
+    elif search == "" and input_graph_json_path == "no_input_graph":
         print(__version__)
     else:
         start = datetime.now()
+        print(start)
+        if input_graph_json_path != "no_input_graph":
+            # load json
+            with open(input_graph_json_path, "r") as file:
+                input_json = json.load(file)
+            data_collection_date = parser.parse(
+                input_json["metadata"][column_names.metadata_data_collection_date]
+            )
+            if data_collection_date + timedelta(days=7) < datetime.now(tz=tz):
+                raise Exception(
+                    "Data collection of input graph was performed more than 7 days ago, then it is not "
+                    "possible to enrich the graph with new data as data can't be collected before the last"
+                    "7 days"
+                )
+            # get arguments from input graph
+            search = input_json["metadata"][column_names.metadata_search]
+            since_id = input_json["metadata"][column_names.metadata_most_recent_tweet]
+            minretweets = input_json["metadata"][column_names.metadata_minretweets]
+            maxresults = input_json["metadata"][column_names.metadata_maxresults]
+            since = input_json["metadata"][column_names.metadata_since]
+        else:
+            input_json = {}
+            since_id = None
         NB = GraphBuilder(
-            search=search, minretweets=minretweets, since=since, maxresults=maxresults
+            search=search,
+            minretweets=minretweets,
+            since=since,
+            maxresults=maxresults,
+            since_id=since_id,
         )
         NB.collect_tweets()
         print("Data collection ended, time of execution is:", datetime.now() - start)
-        NB.clean_nodes_edges()
+        NB.clean_nodes_edges(input_json)
         NB.create_graph(layout_algo)
         print("Graph creation ended, time of execution is:", datetime.now() - start)
         NB.find_communities(community_algo)

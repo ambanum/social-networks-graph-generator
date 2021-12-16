@@ -27,3 +27,19 @@ node_size = "size"
 node_source_date = "source_date"
 nodes_community = "community_id"
 node_edge_date = "dates_edges"
+
+metadata_search = "search"
+metadata_since = "since"
+metadata_type_search = "type_search"
+metadata_maxresults = "maxresults"
+metadata_minretweets = "minretweets"
+metadata_last_collected_tweet = "last_collected_tweet"
+metadata_last_collected_date = "last_collected_date"
+metadata_data_collection_date = "data_collection_date"
+metadata_most_recent_tweet = "most_recent_tweet"
+
+col_mapping_type_tweet = {
+    node_url_tweet: "original",
+    node_url_quoted: "has quoted",
+    node_url_RT: "has RT",
+}
