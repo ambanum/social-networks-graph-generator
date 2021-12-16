@@ -19,6 +19,9 @@ group of words) indicated in the search.
 Only retweets and quotes for which the source tweet was published after the date of the last retweet or 
 tweet quote are collected. This ensures that all retweets of a given tweet are available.
 
+During data collection, `graphgenerator` will also compute a bot score a the user level using the package 
+[botfinder](https://github.com/ambanum/social-networks-bot-finder).
+
 ## Creation of the graph
 
 Once the tweets are collected, they are rearranged to create links between the Twitter accounts.
@@ -105,6 +108,7 @@ searched. For each account, we have the following information:
   - `RT`: list of urls of its RTs in ascending date order
   - `quoted`: list of urls of its quotes in ascending order of dates
   - `dates_edges`: list of dates of RTs and quotes of this account (if any)
+  - `botscore`: probability for the account to be a bot, computed thanks to  [botfinder](https://github.com/ambanum/social-networks-bot-finder)
 
 ### Metadata
 

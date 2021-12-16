@@ -27,6 +27,7 @@ node_size = "size"
 node_source_date = "source_date"
 nodes_community = "community_id"
 node_edge_date = "dates_edges"
+node_botscore = "botscore"
 
 metadata_search = "search"
 metadata_since = "since"

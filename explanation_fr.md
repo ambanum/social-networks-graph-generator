@@ -18,6 +18,9 @@ groupe de mot) indiqué dans la recherche.
 Sont seulement stockés les retweets et mentions dont le tweet source a été publié après la date du dernier retweet ou 
 mention de tweet collectés. Cela permet de s'assurer que l'on dispose de tous les retweets d'un tweet donné. 
 
+Pendant la collecte, `graphgenerator` calculera aussi un score de bot pour chaque utilisateur à l'aide de la library 
+[botfinder](https://github.com/ambanum/social-networks-bot-finder).
+
 ## Création du graph
 
 Une fois les tweets collectés, ils sont réarrangés de manière à créer des liens entre les comptes twitter.
@@ -105,6 +108,7 @@ recherché. POur chaque comptes, on dispose des informations suivantes:
   - `RT`:  liste des urls de ses RT par ordre croissant des dates
   - `quoted`:  liste des urls de ses mentions par ordre croissant des dates
   - `dates_edges`: liste des dates des RT et mentions de ce compte (s'il y en a)
+  - `botscore`: probabilité que le compte soit un bot, calculé grâce à [botfinder](https://github.com/ambanum/social-networks-bot-finder)
 
 ### Metadata
 
