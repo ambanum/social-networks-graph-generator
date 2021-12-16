@@ -7,6 +7,7 @@ nodes_columns_metadata = [
     column_names.node_url_quoted,
     column_names.node_url_RT,
     column_names.node_edge_date,
+    column_names.node_botscore
 ]
 
 edges_columns_metadata = [

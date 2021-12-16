@@ -48,7 +48,7 @@ def aggregate_node_data(nodes):
     """
     nodes = nodes.sort_values(column_names.node_date, ascending=True)
     nodes = (
-        nodes.groupby([column_names.node_id, column_names.node_label])
+        nodes.groupby([column_names.node_id, column_names.node_label, column_names.node_botscore])
         .agg(
             {
                 col: lambda x: list(x)
@@ -113,7 +113,7 @@ def deaggraggate_node_dataframe(old_nodes):
     To do so, intermediate table ist created for each column, it is deaggregated and merged with the user information
     Recreate column from based on list urls columns
     """
-    old_nodes_deag = old_nodes[[column_names.node_label, column_names.node_id]].copy()
+    old_nodes_deag = old_nodes[[column_names.node_label, column_names.node_id, column_names.node_botscore]].copy()
     i = 1
     for col in [
         column_names.node_date,
@@ -171,8 +171,6 @@ def concat_clean_nodes(nodes_RT_quoted, nodes_original, limit_date, input_graph_
     nodes_RT_quoted = clean_nodes_RT_quoted(nodes_RT_quoted, limit_date)
     nodes_original = clean_nodes_tweet(nodes_original, limit_date)
     nodes = pd.concat([nodes_original, nodes_RT_quoted])
-    # aggregate retweet count at the user level to create a new variable which will be the size of the node
-    # nodes[column_names.node_size] = nodes.groupby([column_names.node_id, column_names.node_label])[column_names.node_rt_count].transform('sum')
     # if input_graph, concatenate with new nodes
     if input_graph_json:
         old_nodes = input_graph_json2node_df(input_graph_json)

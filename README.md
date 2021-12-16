@@ -79,7 +79,7 @@ Or you can choose to load graphgenerator as a library and use GraphBuilder class
 from graphgenerator import GraphBuilder
 # initialize Graph builder class
 GB = GraphBuilder(
-    keyword="#hashtag", 
+    search="#hashtag", 
     minretweets=1, 
     since="2021-12-05", 
     maxresults=None
@@ -108,11 +108,11 @@ NB.export_json_output(output_path)
 You can also enrich an existing graph (created thanks to the `graphgenerator` command) as follows:
 
 ```commandline
-graphgenerator --input_graph_json_path="input_json"
+graphgenerator --input_graph_json_path="path_to_input_json"
 ```
 
 Same arguments as used when generating the input graph will then be used to enrich it. The command will be run only if 
-input graph data were collected in the last 7 days
+input graph data were collected in the last 7 days.
 
 ## Example
 
@@ -155,7 +155,8 @@ will return
                 "tweets": ["", ""],
                 "quoted": ["", ""],
                 "RT": ["https://twitter.com/AmbNum/status/1466080848147529731", "https://twitter.com/AmbNum/status/1466339393812193283"],
-                "dates_edges": []
+                "dates_edges": [],
+                "botscore": 0.101
             },
             "x": 0.9420867798959837,
             "y": -0.3153417838051506,

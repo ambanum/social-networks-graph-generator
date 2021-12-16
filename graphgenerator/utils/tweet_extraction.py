@@ -1,5 +1,18 @@
 from graphgenerator.config import column_names
 from snscrape.modules.twitter import Tweet
+from botfinder.bot_classifier import findbot_rawjson
+import json
+
+
+def compute_bot_score_from_user_info(user_info, compute_botscore=True):
+    """
+    Compute botscore using botfinder using user information
+    the function findbot_rawjson from the package is used rather than the CLI
+    """
+    if compute_botscore:
+        return json.loads(findbot_rawjson(user_info.json()))["botScore"]
+    else:
+        return float("nan")
 
 
 def return_type_source_tweet(tweet: Tweet):
@@ -71,6 +84,7 @@ def node_RT_quoted(tweet: Tweet, source_tweet: Tweet):
         column_names.node_rt_count: tweet.retweetCount
         if return_type_source_tweet(tweet) == "has quoted"
         else 0,
+        column_names.node_botscore: compute_bot_score_from_user_info(tweet.user),
     }
 
 
@@ -89,4 +103,5 @@ def node_original(tweet: Tweet, source_tweet: Tweet):
         column_names.node_tweet_id: str(source_tweet.id),
         column_names.node_rt_count: tweet.retweetCount,
         column_names.node_type_tweet: "original",
+        column_names.node_botscore: compute_bot_score_from_user_info(source_tweet.user),
     }
