@@ -111,23 +111,33 @@ def main(
         start = datetime.now()
         print(start)
         if input_graph_json_path != "no_input_graph":
-            #load json
+            # load json
             with open(input_graph_json_path, "r") as file:
                 input_json = json.load(file)
-            data_collection_date = parser.parse(input_json["metadata"][column_names.metadata_data_collection_date])
+            data_collection_date = parser.parse(
+                input_json["metadata"][column_names.metadata_data_collection_date]
+            )
             if data_collection_date + timedelta(days=7) < datetime.now(tz=tz):
-                raise Exception("Data collection of input graph was performed more than 7 days ago, then it is not "
-                                "possible to enrich the graph with new data as data can't be collected before the last"
-                                "7 days")
+                raise Exception(
+                    "Data collection of input graph was performed more than 7 days ago, then it is not "
+                    "possible to enrich the graph with new data as data can't be collected before the last"
+                    "7 days"
+                )
             # get arguments from input graph
-            search = input_json["metadata"][column_names.metadata_search] + " since_id:%s" % input_json["metadata"][
-                column_names.metadata_most_recent_tweet]
+            search = input_json["metadata"][column_names.metadata_search]
+            since_id = input_json["metadata"][column_names.metadata_most_recent_tweet]
             minretweets = input_json["metadata"][column_names.metadata_minretweets]
+            maxresults = input_json["metadata"][column_names.metadata_maxresults]
             since = input_json["metadata"][column_names.metadata_since]
         else:
             input_json = {}
+            since_id = None
         NB = GraphBuilder(
-            search=search, minretweets=minretweets, since=since, maxresults=maxresults
+            search=search,
+            minretweets=minretweets,
+            since=since,
+            maxresults=maxresults,
+            since_id=since_id,
         )
         NB.collect_tweets()
         print("Data collection ended, time of execution is:", datetime.now() - start)

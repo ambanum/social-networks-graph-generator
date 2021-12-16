@@ -104,6 +104,16 @@ NB.export_img_graph(graph_path)
 NB.export_json_output(output_path)
 ```
 
+
+You can also enrich an existing graph (created thanks to the `graphgenerator` command) as follows:
+
+```commandline
+graphgenerator --input_graph_json_path="input_json"
+```
+
+Same arguments as used when generating the input graph will then be used to enrich it. The command will be run only if 
+input graph data were collected in the last 7 days
+
 ## Example
 
 ```
@@ -155,13 +165,16 @@ will return
     ],
     "metadata":
     {
-        "keyword": "ambnum",
+        "search": "ambnum",
         "since": "2021-11-29",
         "type_search": "include:nativeretweets",
         "maxresults": 10,
         "minretweets": 1,
         "last_collected_tweet": 1465613154193399813,
-        "last_collected_date": "2021-11-30 09:26:20+00:00"
+        "last_collected_date": "2021-11-30 09:26:20+00:00",
+        "data_collection_date": "2021-12-14 17:20:29.750030+00:00",
+        "most_recent_tweet": "1470805898817949699"
+      
     }
 }
 ```

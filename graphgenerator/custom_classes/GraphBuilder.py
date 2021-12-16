@@ -5,11 +5,9 @@ import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
 
 
-from graphgenerator.utils.dataframe_manip import (
-    clean_edges,
-    concat_clean_nodes,
-    create_json_output,
-)
+from graphgenerator.data_cleaning.edges import clean_edges
+from graphgenerator.data_cleaning.nodes import concat_clean_nodes
+from graphgenerator.data_cleaning.export import create_json_output
 from graphgenerator.utils.tweet_extraction import (
     edge_from_tweet,
     node_original,
@@ -28,7 +26,7 @@ class GraphBuilder:
     accounts mentioning this topic
     """
 
-    def __init__(self, search, since, minretweets=1, maxresults=None):
+    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None):
         """
         Init function of class GraphBuilder
             Parameters:
@@ -44,6 +42,7 @@ class GraphBuilder:
             None if (maxresults == "None") or (maxresults is None) else int(maxresults)
         )
         self.since = since
+        self.since_id = since_id
         self.get_valid_date()
         self.nodes_original = []
         self.nodes_RT_quoted = []
@@ -72,11 +71,13 @@ class GraphBuilder:
             datetime.now(tz=tz) - timedelta(days=number_days)
         ):
             self.min_date = self.since
-            self.min_date_dt = datetime.strptime(self.since, "%Y-%m-%d").replace(tzinfo=tz)
-        else:
-            self.min_date = (datetime.now(tz=tz) - timedelta(days=number_days)).strftime(
-                "%Y-%m-%d"
+            self.min_date_dt = datetime.strptime(self.since, "%Y-%m-%d").replace(
+                tzinfo=tz
             )
+        else:
+            self.min_date = (
+                datetime.now(tz=tz) - timedelta(days=number_days)
+            ).strftime("%Y-%m-%d")
             self.min_date_dt = datetime.now(tz=tz) - timedelta(days=number_days)
 
     def is_valid_tweet(self, tweet, source_tweet):
@@ -101,6 +102,8 @@ class GraphBuilder:
         search_final = f"{self.search} {self.type_search}"
         if self.min_date:
             search_final += f" since:{self.min_date}"
+        if self.since_id:
+            search_final += f" since_id:{self.since_id}"
         return search_final
 
     def collect_tweets(self):
@@ -157,13 +160,15 @@ class GraphBuilder:
         """
         if self.data_collected:
             if len(self.edges):
-                self.edges = clean_edges(self.edges, self.last_collected_date, input_graph_json)
+                self.edges = clean_edges(
+                    self.edges, self.last_collected_date, input_graph_json
+                )
                 if len(self.edges) or input_graph_json:
                     self.nodes = concat_clean_nodes(
                         self.nodes_RT_quoted,
                         self.nodes_original,
                         self.last_collected_date,
-                        input_graph_json
+                        input_graph_json,
                     )
                     del self.nodes_original
                     del self.nodes_RT_quoted
@@ -175,7 +180,7 @@ class GraphBuilder:
                         raise Exception(
                             "No enough tweets found to build graph. Try using other parameters "
                             "(for example decreasing the maximum number of retweets or extending the research window)"
-                    )
+                        )
             elif input_graph_json and len(self.edges) == 0:
                 raise Exception("No new data to add to existing graph")
             else:
@@ -197,7 +202,10 @@ class GraphBuilder:
         """
         if self.data_cleaned:
             self.G = nx.from_pandas_edgelist(
-                self.edges, source=column_names.edge_source, target=column_names.edge_target, edge_attr=column_names.edge_size
+                self.edges,
+                source=column_names.edge_source,
+                target=column_names.edge_target,
+                edge_attr=column_names.edge_size,
             )
             position_function = layout_functions[layout_algo]["function"]
             self.positions = position_function(
@@ -270,8 +278,12 @@ class GraphBuilder:
                 column_names.metadata_maxresults: self.maxresults,
                 column_names.metadata_minretweets: self.minretweets,
                 column_names.metadata_last_collected_tweet: self.last_collected_tweet,
-                column_names.metadata_last_collected_date: str(self.last_collected_date),
-                column_names.metadata_data_collection_date: str(self.data_collection_date),
+                column_names.metadata_last_collected_date: str(
+                    self.last_collected_date
+                ),
+                column_names.metadata_data_collection_date: str(
+                    self.data_collection_date
+                ),
                 column_names.metadata_most_recent_tweet: str(self.most_recent_tweet),
             }
             with open(json_path, "w") as outfile:

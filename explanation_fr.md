@@ -56,6 +56,14 @@ disponibles dans `graphgenerator`.
 Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans `networkx` mais dans une bibliothèque 
 indépendante. Il repose sur la "méthode de louvain". Cette méthode est particulièrement efficace pour les gros réseaux.
 
+## ENrichir un graph existant
+
+En utilisant la commande `input_graph_json_path` de `graphgenerator`, vous pouvez enrichier un graph existant 
+(une sortie json de `graphgenerator`). Les paramètres utilisés lors de sa création seront alors utilisés pour l'enrichir
+
+Le graph existant doit avoit été créé dans les septs jours précédents, sinon la commande ne fonctionnera comme seul les
+retweets des 7 derniers jours sont accessibles.
+
 #Sorties
 
 ## JSON
@@ -92,7 +100,7 @@ recherché. POur chaque comptes, on dispose des informations suivantes:
 - `x`: coordonnées x du noeud dans le graph
 - `y`: coordonnées y du noeud dans le graph
 - `metadata`: informations additionnelles sur le noeud:
-  - `date`: date des RT, mentions ou tweets du compte
+  - `dates`: date des RT, mentions ou tweets du compte
   - `tweets`: liste des urls de ses tweets par ordre croissant des dates
   - `RT`:  liste des urls de ses RT par ordre croissant des dates
   - `quoted`:  liste des urls de ses mentions par ordre croissant des dates
@@ -107,6 +115,8 @@ Le champs `metadata` contient des informations additionnelles sur la recherche e
 - `minretweets`: nombre de RT minimal dans la recherche
 - `last_collected_tweet`: id du dernier tweets collecté
 - `last_collected_date`: date du dernier tweet collecté
+- `data_collection_date`: date de la data collection
+- `most_recent_tweet`: tweet id du premier tweet collecté
 
 ## Graph
 

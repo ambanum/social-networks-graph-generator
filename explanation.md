@@ -17,7 +17,7 @@ collection is limited to the last seven days.
 group of words) indicated in the search.
 
 Only retweets and quotes for which the source tweet was published after the date of the last retweet or 
-tweet quote are collected. This ensures that all retweets of a given tweet are available. 
+tweet quote are collected. This ensures that all retweets of a given tweet are available.
 
 ## Creation of the graph
 
@@ -57,6 +57,14 @@ available in `graphgenerator`.
 By default, we have chosen an algorithm that is not available in `networkx` but in an 
 library. It is based on the "Leuven method". This method is particularly efficient for large networks.
 
+## Enriching an existing graph
+
+Using the `input_graph_json_path` command of `graphgenerator`, you can enrich an existing graph (json output of the 
+`graphgenerator`). It will then use the parameters used to create the input graph to enrich it.
+
+Existing graph must have been created in the last 7 days, otherwise the command won't work as only Retwwets from the 
+last 7 days can be collected. 
+
 #Outputs
 
 ## JSON
@@ -92,7 +100,7 @@ searched. For each account, we have the following information:
 - `x`: x coordinate on the graph
 - `y`: y coordinate on the graph
 - `metadata`: additional information about the node:
-  - `date`: date of RTs, quotes or tweets from the account
+  - `dates`: date of RTs, quotes or tweets from the account
   - `tweets`: list of urls of its tweets in ascending date order
   - `RT`: list of urls of its RTs in ascending date order
   - `quoted`: list of urls of its quotes in ascending order of dates
@@ -101,12 +109,14 @@ searched. For each account, we have the following information:
 ### Metadata
 
 The `metadata` field contains additional information about the search and the results of the search performed.
-- `keyword`: keyword or hashtag used in the search
+- `search`: keyword or hashtag used in the search
 - `since`: date until which the tweets were searched
 - `maxresults`: maximum number of results in the search
 - `minretweets`: minimum number of RTs in the search
 - `last_collected_tweet`: id of the last collected tweets
-- `last_collected_date`: date of the last collected tweet
+- `last_collected_date`: date of the last collected tweet, 
+- `data_collection_date`: date of data collection
+- `most_recent_tweet`: tweet id of the first collected tweet
 
 ## Graph
 

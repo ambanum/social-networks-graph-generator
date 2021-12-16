@@ -41,5 +41,5 @@ metadata_most_recent_tweet = "most_recent_tweet"
 col_mapping_type_tweet = {
     node_url_tweet: "original",
     node_url_quoted: "has quoted",
-    node_url_RT: "has RT"
+    node_url_RT: "has RT",
 }
