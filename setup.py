@@ -30,8 +30,7 @@ setuptools.setup(
         "matplotlib==3.5.0",
         "python-louvain==0.15",
         "social-networks-bot-finder",
-        "snscrape @ git+https://github.com/JustAnotherArchivist/snscrape.git@a6b6f3faaa26f541d9469651451340096b5abc92#egg=snscrape"
-
+        "snscrape==0.4.2.20211215"
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",

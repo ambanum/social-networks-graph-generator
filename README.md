@@ -18,7 +18,7 @@ source social-networks-graph-generator/bin/activate
 Install
 
 ```
-pip3 install git+https://github.com/ambanum/social-networks-graph-generator
+pip3 install social-networks-graph-generator
 ```
 
 Then you can launch `graphgenerator`
