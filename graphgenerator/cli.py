@@ -9,10 +9,12 @@ import click
 from datetime import datetime, timedelta
 import json
 from dateutil import parser
+import dateutil
 
 from graphgenerator.version import __version__
 from graphgenerator.custom_classes.GraphBuilder import GraphBuilder
 from graphgenerator.config import column_names, tz
+from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
 
 
 @click.command()
@@ -21,13 +23,20 @@ from graphgenerator.config import column_names, tz
     "-r",
     "--minretweets",
     default=1,
-    help="The minimal number of retweets a tweet must have for us to fetch its retweeters",
+    help="The minimal number of retweets a tweet must have to fetch its retweeters",
 )
 @click.option(
     "-f",
     "--input_graph_json_path",
-    default="no_input_graph",
-    help="Path to json file containing graph built thanks to graphgenerator command",
+    default=None,
+    help="Path to json file containing graph built thanks to graphgenerator command, can be used with option `snscrape_json_path` to enrich it or alone to enrich it with tweets published in the last 7 days",
+    show_default=True,
+)
+@click.option(
+    "-s",
+    "--snscrape_json_path",
+    default=None,
+    help="Path to snscrape json output from which to import tweets that will be used to build network, can be used with `input_graph_json_path` to enrich it",
     show_default=True,
 )
 @click.option(
@@ -87,6 +96,7 @@ def main(
     version,
     search,
     json_path,
+    snscrape_json_path,
     minretweets,
     since,
     maxresults,
@@ -105,30 +115,42 @@ def main(
     """
     if version:
         print(__version__)
-    elif search == "" and input_graph_json_path == "no_input_graph":
+    elif search == "" and input_graph_json_path is None and snscrape_json_path == None:
         print(__version__)
     else:
         start = datetime.now()
         print(start)
-        if input_graph_json_path != "no_input_graph":
+        if input_graph_json_path:
             # load json
             with open(input_graph_json_path, "r") as file:
                 input_json = json.load(file)
             data_collection_date = parser.parse(
                 input_json["metadata"][column_names.metadata_data_collection_date]
             )
-            if data_collection_date + timedelta(days=7) < datetime.now(tz=tz):
-                raise Exception(
-                    "Data collection of input graph was performed more than 7 days ago, then it is not "
-                    "possible to enrich the graph with new data as data can't be collected before the last"
-                    "7 days"
-                )
+            if snscrape_json_path:
+                last_tweet = return_last_tweet_snscrape(snscrape_json_path)
+                if data_collection_date < parser.parse(last_tweet["date"]):
+                    raise Exception("Input graph data is older than data in snscrape json file then it is not possible to use it to update the graph")
+            else:
+                if data_collection_date + timedelta(days=7) < datetime.now(tz=tz):
+                    raise Exception(
+                        "Data collection of input graph was performed more than 7 days ago, then it is not "
+                        "possible to enrich the graph with new data as data can't be collected before the last"
+                        "7 days"
+                    )
             # get arguments from input graph
             search = input_json["metadata"][column_names.metadata_search]
             since_id = input_json["metadata"][column_names.metadata_most_recent_tweet]
             minretweets = input_json["metadata"][column_names.metadata_minretweets]
             maxresults = input_json["metadata"][column_names.metadata_maxresults]
             since = input_json["metadata"][column_names.metadata_since]
+        elif snscrape_json_path and input_graph_json_path is None:
+            search = "unknown as taken from snscrape output"
+            since_id = None
+            minretweets = 1
+            maxresults = None
+            since = "2004-01-01"
+            input_json = {}
         else:
             input_json = {}
             since_id = None
@@ -139,7 +161,7 @@ def main(
             maxresults=maxresults,
             since_id=since_id,
         )
-        NB.collect_tweets()
+        NB.collect_tweets(snscrape_json_path)
         print("Data collection ended, time of execution is:", datetime.now() - start)
         NB.clean_nodes_edges(input_json)
         NB.create_graph(layout_algo)
