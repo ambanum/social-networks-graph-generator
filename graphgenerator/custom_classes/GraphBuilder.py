@@ -80,18 +80,24 @@ class GraphBuilder:
             ).strftime("%Y-%m-%d")
             self.min_date_dt = datetime.now(tz=tz) - timedelta(days=number_days)
 
-    def is_valid_tweet(self, tweet, source_tweet):
+    def is_valid_tweet(self, tweet, source_tweet, from_snscrape):
         """
         Is tweet valid i.e. :
-        - the source tweet was published after the specified date in since (or in the last 7 days)
+        - the source tweet was published after the specified date in since (or in the last 7 days), not relevant if tweets are taken from snscrape json output 
         - the number of retweet to consider is above the number of retweets specified in Class
         - the user is not retweeting or mentioning him/herself
         """
-        return (
-            (source_tweet.date > self.min_date_dt)
-            & (tweet.user.username != source_tweet.user.username)
-            & (source_tweet.retweetCount >= self.minretweets)
-        )
+        if from_snscrape:
+            return (
+                (tweet["user"]["username"] != source_tweet["user"]["username"])
+                & (source_tweet["retweetCount"] >= self.minretweets)
+            )
+        else:
+            return (
+                (source_tweet["date"] > self.min_date_dt)
+                & (tweet["user"]["username"] != source_tweet["user"]["username"])
+                & (source_tweet["retweetCount"] >= self.minretweets)
+            )
 
     def create_search(self):
         """
@@ -106,7 +112,31 @@ class GraphBuilder:
             search_final += f" since_id:{self.since_id}"
         return search_final
 
-    def collect_tweets(self):
+    def extract_info_from_tweet(self, tweet, n_valid_tweet, from_snscrape):
+        """
+        Extract information from a tweet and add to edges and nodes files
+            Parameters:
+                tweet (dict): a tweet in dictionnary format
+                n_valid_tweet (int): number of valid tweets that have been collected
+                from_snscrape (str): path to snscrape path if relevant
+        """
+        is_RT_or_quoted = return_type_source_tweet(tweet)
+        if is_RT_or_quoted:
+            source_tweet = return_source_tweet(tweet)
+            if self.is_valid_tweet(tweet, source_tweet, from_snscrape):
+                self.edges.append(edge_from_tweet(tweet, source_tweet))
+                self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet))
+                if source_tweet["id"] not in self.nodes_original_done:
+                    self.nodes_original.append(
+                        node_original(tweet, source_tweet)
+                    )
+                    self.nodes_original_done.append(source_tweet["id"])
+                n_valid_tweet += 1
+            self.last_collected_tweet = tweet["id"]
+            self.last_collected_date = tweet["date"]
+        return n_valid_tweet
+
+    def collect_tweets(self, snscrape_json_path=None):
         """
         Collect and save tweets in nodes and edges files, for each tweet, the source tweet is also collected
         data collection stopped when their ist no longer tweet to collect or if the maximum number of tweets to collect
@@ -115,31 +145,28 @@ class GraphBuilder:
         Here we do not use snscrape cli command but directly its associated package through the TwitterSearchScraper
         module, thus the maxresults is not the same as in the cli command, here it refers to the maximum number of
         valid tweets (see the .is_valid_tweet() method to get a definition of valid tweet)
+        Tweets can also be directy imported from output of snscrape command using arg `snscrape_json_path`
+            Parameters:
+                snscrape_json_path (str): path to snscrape json output from which to import tweets that will be used to build network, default is None
         """
         if not self.data_collected:
             self.data_collection_date = datetime.now(tz=tz)
-            search = self.create_search()
-            print(search)
-            n_valid_tweet = 0
-            for i, tweet in enumerate(
-                sntwitter.TwitterSearchScraper(search).get_items()
-            ):
-                if i == 0:
-                    self.most_recent_tweet = tweet.id
-                is_RT_or_quoted = return_type_source_tweet(tweet)
-                if is_RT_or_quoted:
-                    source_tweet = return_source_tweet(tweet)
-                    if self.is_valid_tweet(tweet, source_tweet):
-                        self.edges.append(edge_from_tweet(tweet, source_tweet))
-                        self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet))
-                        if source_tweet.id not in self.nodes_original_done:
-                            self.nodes_original.append(
-                                node_original(tweet, source_tweet)
-                            )
-                            self.nodes_original_done.append(source_tweet.id)
-                        n_valid_tweet += 1
-                    self.last_collected_tweet = tweet.id
-                    self.last_collected_date = tweet.date
+            if snscrape_json_path:
+                with open(snscrape_json_path, "r") as f:
+                    for i,tweet in enumerate(f):
+                        tweet_json = json.loads(tweet)
+                        if i == 0:
+                            self.most_recent_tweet = tweet_json["id"]
+                        self.extract_info_from_tweet(tweet_json, 0, snscrape_json_path)
+            else:
+                search = self.create_search()
+                print(search)
+                n_valid_tweet = 0
+                for i, tweet in enumerate(sntwitter.TwitterSearchScraper(search).get_items()):
+                    tweet_json = json.loads(tweet.json())
+                    if i == 0:
+                        self.most_recent_tweet = tweet_json["id"]
+                    n_valid_tweet = self.extract_info_from_tweet(tweet_json, n_valid_tweet, snscrape_json_path)
                     if self.maxresults and n_valid_tweet >= self.maxresults:
                         break
             self.data_collected = True

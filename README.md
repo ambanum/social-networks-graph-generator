@@ -68,8 +68,25 @@ To get the graph of a keyword or hashtag, you can do so (using cli command)
 # by search: this will use snscrape to get the data
 graphgenerator "#hashtag"
 graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --json_path="output.json" 
+
 # if you want to visualise the graph, you can choose to export a png file of it 
 graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --json_path="output.json" --img_path="graph.png"
+```
+Update an existing graph (it will update with data from the 7 past days)
+```
+# updating an existing graph (created using graphgenerator)
+graphgenerator --input_graph_json_path=="input_from_graphgenerator.json"
+```
+Create a graph from snscrape output
+```
+# download twitter data using snscrape
+snscrape --jsonl twitter-search "your_search" > "snscrape_output.json"
+# create graph from this data
+graphgenerator snscrape_json_path=="snscrape_output.json"
+
+#it can also be combined with an existing graph if the last tweet of the collected data from snscrape was posted before the most recent tweet of the existing graph
+graphgenerator --input_graph_json_path=="input_from_graphgenerator.json" snscrape_json_path=="snscrape_output.json" 
+
 ```
 
 Or you can choose to load graphgenerator as a library and use GraphBuilder class directly in your Python script
@@ -87,9 +104,11 @@ GB = GraphBuilder(
 
 # collect tweets, here we collect retweet and quotes of tweets mentionning "#hashtag" since "2021-12-05" (collect can only back max to 7 days)
 NB.collect_tweets()
+# or use NB.collect_tweets(snscrape_json_path="snscrape_output.json") to use data from snscrape output
 
 # create node and edges pandas dataframe (NB.nodes and NB.edges) 
 NB.clean_nodes_edges()
+#or NB.clean_nodes_edges(input_json=input_json) if you want to update an existing graph saved in input_json
 
 # create graph object (networkx format, stored in NB.G) and calculate position of the nodes using layout_algo)
 NB.create_graph(layout_algo="spring")
