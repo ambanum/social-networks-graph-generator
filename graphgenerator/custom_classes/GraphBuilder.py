@@ -3,6 +3,7 @@ import json
 import networkx as nx
 import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
+from dateutil import parser
 
 
 from graphgenerator.data_cleaning.edges import clean_edges
@@ -93,8 +94,12 @@ class GraphBuilder:
                 & (source_tweet["retweetCount"] >= self.minretweets)
             )
         else:
+            if isinstance(source_tweet["date"], str):
+                date_datetime = parser.parse(source_tweet["date"])
+            else:
+                date_datetime = source_tweet["date"]
             return (
-                (source_tweet["date"] > self.min_date_dt)
+                (date_datetime > self.min_date_dt)
                 & (tweet["user"]["username"] != source_tweet["user"]["username"])
                 & (source_tweet["retweetCount"] >= self.minretweets)
             )
