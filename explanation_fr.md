@@ -2,7 +2,7 @@
 
 # Méthodologie
 
-`Graphgenerator permet de recréer le réseau des interactions des comptes twitter sur un hashtag ou mot (ou groupe de mots) 
+`Graphgenerator` permet de recréer le réseau des interactions des comptes twitter sur un hashtag ou mot (ou groupe de mots) 
 donné. 
 
 ## Collecte des tweets
@@ -41,7 +41,7 @@ noeuds.
 Plusieurs algorithmes permettent de calculer les coordonnées des noeuds d'un graph pour le réprésenter au mieux. 
 L'objectif est de résumer au mieux l'information dans le graph tout en la rendant lisible. 
 Généralement les algorithmes tentent de minimiser le nombre d'intersections des liens (par considération esthétique, 
-de lisibilité), de rapprocher les noeuds qui onet beaucoup de liens entre eux et de placer au centre du graph les noeuds
+de lisibilité), de rapprocher les noeuds qui ont beaucoup de liens entre eux et de placer au centre du graph les noeuds
 "centraux" (qui permettent de faire circuler l'information au sein du réseau).
 
 `networkx` fournit de nombreuses possibilités de visualisations et une bonne partie sont disponibles dans Graphgenerator. 
