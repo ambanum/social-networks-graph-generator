@@ -2,8 +2,9 @@
 
 # social-networks-graph-generator
 
-A graph generator to visualise links between twitter accounts for a specific keyword or hashtag
-See our [Methodology](./explanation.md) for graph generation
+A graph generator to visualise links between twitter accounts for a specific keyword or hashtag.
+
+See our [methodology](./explanation.md) for graph generation.
 
 ## Install for common usage with pip
 
