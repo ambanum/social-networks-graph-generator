@@ -1,4 +1,4 @@
-[English version](./explanation.md)
+[Read the english version](./explanation.md)
 
 # Méthodologie
 
