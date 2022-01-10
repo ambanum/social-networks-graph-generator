@@ -38,8 +38,7 @@ Graphgenerator also allows to identify clusters. They correspond to groups of ac
 
 Again, Networkx provides a wide choice of algorithms for identifying these communities, most of which are available in Graphgenerator. 
 
-By default, we have chosen an algorithm that is not available in Networkx but in an 
-library. It is based on the "Leuven method". This method is particularly efficient for large networks.
+By default, we have chosen an algorithm that is not available in Networkx but in an library. It is based on the "Leuven method". This method is particularly efficient for large networks.
 
 ## Enriching an existing graph
 
@@ -71,8 +70,7 @@ List of links between Twitter accounts that mention the hashtag (accounts that r
 
 ### Nodes
 
-List of twitter accounts that are quoted or RT or quote or RT a tweet containing the hashtag 
-searched. For each account, we have the following information:
+List of twitter accounts that are quoted or RT or quote or RT a tweet containing the hashtag searched. For each account, we have the following information:
 - `id`: account id
 - `label`: username or twitter handle
 - `size`: size of the node, i.e. number of times i was RT'd or quoted
