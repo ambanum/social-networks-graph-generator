@@ -1,4 +1,4 @@
-[Version française](./explanation_fr.md)
+[Lire en version française](./explanation_fr.md)
 
 # Methodology
 
