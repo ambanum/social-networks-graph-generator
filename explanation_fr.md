@@ -61,8 +61,8 @@ indépendante. Il repose sur la "méthode de louvain". Cette méthode est partic
 
 ## Enrichir un graph existant
 
-En utilisant la commande `input_graph_json_path` de `graphgenerator`, vous pouvez enrichier un graph existant 
-(une sortie json de `graphgenerator`). Les paramètres utilisés lors de sa création seront alors utilisés pour l'enrichir
+En utilisant la commande `input_graph_json_path` de `graphgenerator`, vous pouvez enrichir un graph existant 
+(une sortie au format `json` de `graphgenerator`). Les paramètres utilisés lors de sa création seront alors utilisés pour l'enrichir
 
 Le graph existant doit avoit été créé dans les septs jours précédents, sinon la commande ne fonctionnera comme seul les
 retweets des 7 derniers jours sont accessibles.
