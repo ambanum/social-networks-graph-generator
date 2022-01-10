@@ -59,7 +59,7 @@ disponibles dans `graphgenerator`.
 Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans `networkx` mais dans une bibliothèque 
 indépendante. Il repose sur la "méthode de louvain". Cette méthode est particulièrement efficace pour les gros réseaux.
 
-## ENrichir un graph existant
+## Enrichir un graph existant
 
 En utilisant la commande `input_graph_json_path` de `graphgenerator`, vous pouvez enrichier un graph existant 
 (une sortie json de `graphgenerator`). Les paramètres utilisés lors de sa création seront alors utilisés pour l'enrichir
