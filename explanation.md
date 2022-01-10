@@ -2,17 +2,17 @@
 
 # Methodology
 
-`Graphgenerator` can recreate the network of interactions of Twitter accounts on a given hashtag or word (or group of words) given. 
+Graphgenerator can recreate the network of interactions of Twitter accounts on a given hashtag or word (or group of words) given. 
 
 ## Collecting tweets
 
-The data is collected by `Graphgenerator` using the scraping tool `snscrape`. This tool collects the data that is displayed when you search using the Twitter search bar. It only allows to retrieve the retweets of the last seven days (beyond that, only tweets and quotes can be collected). The collection is limited to the last seven days.
+The data is collected by Graphgenerator using the scraping tool `snscrape`. This tool collects the data that is displayed when you search using the Twitter search bar. It only allows to retrieve the retweets of the last seven days (beyond that, only tweets and quotes can be collected). The collection is limited to the last seven days.
 
-`Graphgenerator` collects all tweets that are retweets or quotes of tweets mentioning the hashtag (or word or group of words) indicated in the search.
+Graphgenerator collects all tweets that are retweets or quotes of tweets mentioning the hashtag (or word or group of words) indicated in the search.
 
 Only retweets and quotes for which the source tweet was published after the date of the last retweet or tweet quote are collected. This ensures that all retweets of a given tweet are available.
 
-During data collection, `graphgenerator` will also compute a bot score a the user level using the package [botfinder](https://github.com/ambanum/social-networks-bot-finder).
+During data collection, Graphgenerator will also compute a bot score a the user level using the package [botfinder](https://github.com/ambanum/social-networks-bot-finder).
 
 ## Creation of the graph
 
@@ -21,7 +21,7 @@ Two Twitter accounts are linked if one quotes or retweets the other's tweet. A d
 
 The data is also aggregated at the account level which form the nodes of the graph. The size assigned to them corresponds to the total number of tweets and quotes of tweets issued by this account.
 
-The data is put into graph format using the `networkx` library.
+The data is put into graph format using the [Networkx](https://networkx.org/) library.
 
 ## Layout
 
@@ -30,20 +30,20 @@ To allow the good visualization of the graph, coordinates in a 2D (or 3D) plane 
 Several algorithms allow to compute the coordinates of the nodes of a graph to represent it as well as possible. The objective is to summarize the information in the graph as well as possible while making it readable. Generally the algorithms try to minimize the number of intersections of the links (for aesthetic considerations and to 
 ensure readability), to bring closer together the nodes that have many links between them and to place the "central" nodes in the center of the graph (which allow "central" nodes (which allow information to circulate within the network).
 
-`networkx` provides many visualization possibilities and many of them are available in Graphgenerator. We propose to use by default the spring or [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) algorithm. It works very well with large networks (which is our case).
+`networkx` command line provides many visualization possibilities and many of them are available in Graphgenerator. We propose to use by default the spring or [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) algorithm because they works very well with large networks (which is our case).
 
 ## Communities
 
-`Graphgenerator` also allows to identify clusters. They correspond to groups of accounts that interact a lot with each other. 
+Graphgenerator also allows to identify clusters. They correspond to groups of accounts that interact a lot with each other. 
 
-Again, `networkx` provides a wide choice of algorithms for identifying these communities, most of which are available in `graphgenerator`. 
+Again, Networkx provides a wide choice of algorithms for identifying these communities, most of which are available in Graphgenerator. 
 
-By default, we have chosen an algorithm that is not available in `networkx` but in an 
+By default, we have chosen an algorithm that is not available in Networkx but in an 
 library. It is based on the "Leuven method". This method is particularly efficient for large networks.
 
 ## Enriching an existing graph
 
-Using the `input_graph_json_path` command of `graphgenerator`, you can enrich an existing graph (json output of the `graphgenerator`). It will then use the parameters used to create the input graph to enrich it.
+Using the `input_graph_json_path` command of `graphgenerator`, you can enrich an existing graph (`json` output of the `graphgenerator`). It will then use the parameters used to create the input graph to enrich it.
 
 Existing graph must have been created in the last 7 days, otherwise the command won't work as only Retwwets from the last 7 days can be collected. 
 

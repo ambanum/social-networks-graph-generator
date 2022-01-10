@@ -2,17 +2,17 @@
 
 # Méthodologie
 
-`Graphgenerator` permet de recréer le réseau des interactions des comptes twitter sur un hashtag ou mot (ou groupe de mots) donné. 
+Graphgenerator permet de recréer le réseau des interactions des comptes twitter sur un hashtag ou mot (ou groupe de mots) donné. 
 
 ## Collecte des tweets
 
-Les données sont collectées par `Graphgenerator` en utilisant l'outil de collecte `snscrape`. Cet outil récolte les données qui s'affichent lorsque l'on réalise une recherche dans barre de recherche de Twitter. Il ne permet de récupérer seulement les retweets des sept derniers jours (au delà seuls les tweets et mentions peuvent être collectés). La collecte est donc bornées au sept derniers jours.
+Les données sont collectées par Graphgenerator en utilisant l'outil de collecte `snscrape`. Cet outil récolte les données qui s'affichent lorsque l'on réalise une recherche dans barre de recherche de Twitter. Il ne permet de récupérer seulement les retweets des sept derniers jours (au delà seuls les tweets et mentions peuvent être collectés). La collecte est donc bornées au sept derniers jours.
 
-`Graphgenerator` collecte tous les tweets qui sont des retweets ou mentions de tweets mentionnant le hashtag (ou mot ou groupe de mot) indiqué dans la recherche.
+Graphgenerator collecte tous les tweets qui sont des retweets ou mentions de tweets mentionnant le hashtag (ou mot ou groupe de mot) indiqué dans la recherche.
 
 Sont seulement stockés les retweets et mentions dont le tweet source a été publié après la date du dernier retweet ou mention de tweet collectés. Cela permet de s'assurer que l'on dispose de tous les retweets d'un tweet donné. 
 
-Pendant la collecte, `graphgenerator` calculera aussi un score de bot pour chaque utilisateur à l'aide de la library [botfinder](https://github.com/ambanum/social-networks-bot-finder).
+Pendant la collecte, Graphgenerator calculera aussi un score de bot pour chaque utilisateur à l'aide de la librairie [botfinder](https://github.com/ambanum/social-networks-bot-finder).
 
 ## Création du graph
 
@@ -20,7 +20,7 @@ Une fois les tweets collectés, ils sont réarrangés de manière à créer des 
 
 Les données sont aussi aggrégées au niveau des comptes qui forment les noeuds du graph. La taille qui y est attribuée correspond au nombre total de tweets et de mentions de tweets émis par ce compte.
 
-Les données sont mises au format de graph grâce à la bibliothèque `networkx`.
+Les données sont mises au format de graph grâce à la bibliothèque [Networkx](https://networkx.org/).
 
 ## Layout
 
@@ -28,15 +28,15 @@ Pour permettre la bonne visualisation du graph, des coordonnées dans un plan en
 
 Plusieurs algorithmes permettent de calculer les coordonnées des noeuds d'un graph pour le réprésenter au mieux. L'objectif est de résumer au mieux l'information dans le graph tout en la rendant lisible. Généralement les algorithmes tentent de minimiser le nombre d'intersections des liens (par considération esthétique, de lisibilité), de rapprocher les noeuds qui ont beaucoup de liens entre eux et de placer au centre du graph les noeuds "centraux" (qui permettent de faire circuler l'information au sein du réseau).
 
-`networkx` fournit de nombreuses possibilités de visualisations et une bonne partie sont disponibles dans Graphgenerator. Nous proposons d'utiliser par défaut l'algorithme spring ou [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html). Il fonctionne très bien avec de larges réseaux (ce qui est notre cas).
+La commande `networkx` fournit de nombreuses possibilités de visualisations et une bonne partie sont disponibles dans Graphgenerator. Nous proposons d'utiliser par défaut l'algorithme spring ou [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) parcequ'ils fonctionnent très bien avec de larges réseaux (ce qui est notre cas).
 
 ## Communautés
 
-`Graphgenerator` permet également d'identifier des clusters. Ils correspondent à des groupes de comptes qui interagissent beaucoup entre eux. 
+Graphgenerator permet également d'identifier des clusters. Ils correspondent à des groupes de comptes qui interagissent beaucoup entre eux. 
 
-Encore une fois, `networkx` fournit un large choix d'algorithmes pour identifier ces communautés, qui sont pur la plupart disponibles dans `graphgenerator`. 
+Encore une fois, Networkx fournit un large choix d'algorithmes pour identifier ces communautés, qui sont pour la plupart disponibles dans Graphgenerator. 
 
-Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans `networkx` mais dans une bibliothèque indépendante. Il repose sur la "méthode de louvain". Cette méthode est particulièrement efficace pour les gros réseaux.
+Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans Networkx mais dans une bibliothèque indépendante. Il repose sur la "méthode de louvain". Cette méthode est particulièrement efficace pour les gros réseaux.
 
 ## Enrichir un graph existant
 
