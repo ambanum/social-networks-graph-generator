@@ -6,4 +6,5 @@ pytz==2021.3
 matplotlib==3.5.0
 python-louvain==0.15
 social-networks-bot-finder
-snscrape==0.4.2.20211215
+scikit-learn==0.24.2
+snscrape==0.4.3.20220106
