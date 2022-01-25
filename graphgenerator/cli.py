@@ -40,7 +40,7 @@ from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
     show_default=True,
 )
 @click.option(
-    "-d",
+    "-t",
     "--since",
     default="2004-01-01",
     help="The date up to which we will look for tweets, the graphgenerator can only get last 7 days Retweets",
@@ -78,6 +78,19 @@ from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
     show_default=True,
 )
 @click.option(
+    "-d",
+    "--dim",
+    default="2",
+    type=click.Choice(
+        [
+            "2",
+            "3"        
+        ]
+    ),
+    help="The number of dimension of the layout (can be either 2D or 3D)",
+    show_default=True,
+)
+@click.option(
     "-j",
     "--json_path",
     default="output.json",
@@ -104,6 +117,7 @@ def main(
     img_path,
     community_algo,
     input_graph_json_path,
+    dim,
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
@@ -154,12 +168,15 @@ def main(
         else:
             input_json = {}
             since_id = None
+        if dim=="3" and img_path != "no_img_file":
+            raise Exception("graphgenerator can't create a 3D graph in png file. Change dimension to 2D or do not export an image.")
         NB = GraphBuilder(
             search=search,
             minretweets=minretweets,
             since=since,
             maxresults=maxresults,
             since_id=since_id,
+            dim=int(dim),
         )
         NB.collect_tweets(snscrape_json_path)
         print("Data collection ended, time of execution is:", datetime.now() - start)

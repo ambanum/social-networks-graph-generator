@@ -78,6 +78,7 @@ Liste des comptes twitter qui sont mentionnés ou RT ou alors qui mentionnent ou
 - `community_id`: id du cluster détecté grâce à l'algo de communauté
 - `x`: coordonnées x du noeud dans le graph
 - `y`: coordonnées y du noeud dans le graph
+- `z`: coordonnées y du noeud dans le graph (si l'option 3D a été choisie)
 - `metadata`: informations additionnelles sur le noeud:
   - `dates`: date des RT, mentions ou tweets du compte
   - `tweets`: liste des urls de ses tweets par ordre croissant des dates
