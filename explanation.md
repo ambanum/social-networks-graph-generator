@@ -1,6 +1,4 @@
-[Lire en français](./explanation_fr.md)
-
-# Methodology
+# How do we generate an interaction graph?
 
 Graphgenerator can recreate the network of interactions of Twitter accounts on a given hashtag or word (or group of words).
 
@@ -111,7 +109,7 @@ A png file can be exported using the `--img_path` command line option (or the
 Using the following command in the terminal:
 
 ```commandline
-graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png?raw=true"
 ```
 
 or in your Python script
@@ -146,10 +144,10 @@ nx.draw_networkx(
 
 you get the following results (code was run on 09/12/2021):
 
-|      Spiral Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spiral.png "Spiral")       |            Spring Layout <br/>![alt](./img/%23boycottfrance_20211209_graph_spring.png "Spring")             |
+|      Spiral Layout <br/>![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spiral.png?raw=true "Spiral")       |            Spring Layout <br/>![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spring.png?raw=true "Spring")             |
 | :---------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------: |
-| **Circular Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_circular.png "Circular") | **Kamada Kawai Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_kamada_kawai.png "Kamada Kawai") |
-|    **Random Layout** <br/> ![alt](./img/%23boycottfrance_20211209_graph_random.png "Random")    |
+| **Circular Layout** <br/> ![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_circular.png?raw=true "Circular") | **Kamada Kawai Layout** <br/> ![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_kamada_kawai.png?raw=true "Kamada Kawai") |
+|    **Random Layout** <br/> ![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_random.png?raw=true "Random")    |
 
 ## Example community detection
 
@@ -157,11 +155,15 @@ Using the following code in the terminal (`"community_algo"` must be taken in
 `["greedy_modularity", "asyn_lpa_communities", "girvan_newman", "label_propagation", "louvain"]`) :
 
 ```commandline
-graphgenerator "#boycottfrance" --layout_algo "spring" --community_algo "community_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+graphgenerator "#boycottfrance" --layout_algo "spring" --community_algo "community_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png?raw=true"
 ```
 
 Depending on the algorithm you use, you will get the following resultats (the color indicates the community)
 
-|         Girvan Newman <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_girvan_newman.png "Girvan Newmann")         | Greedy Modularity <br/>![alt](./img/%23boycottfrance_20211209_graph_spring_greedy_modularity.png "Greedy modularity") |
+|         Girvan Newman <br/>![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spring_girvan_newman.png?raw=true "Girvan Newmann")         | Greedy Modularity <br/>![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spring_greedy_modularity.png?raw=true "Greedy modularity") |
 | :------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------: |
-| **Label Propagation** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_label_propagation.png "Label Propagation") |             **Louvain** <br/> ![alt](./img/%23boycottfrance_20211209_graph_spring_louvain.png "Louvain")              |
+| **Label Propagation** <br/> ![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spring_label_propagation.png?raw=true "Label Propagation") |             **Louvain** <br/> ![alt](https://github.com/ambanum/social-networks-graph-generator/blob/main/img/%23boycottfrance_20211209_graph_spring_louvain.png?raw=true "Louvain")              |
+
+---
+
+[Lire en français](https://github.com/ambanum/social-networks-graph-generator/blob/main/explanation_fr.md)
