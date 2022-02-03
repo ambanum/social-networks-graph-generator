@@ -9,14 +9,14 @@ layout_functions = {
     "circular": {"function": nx.circular_layout, "args": {}},
     "kamada_kawai": {
         "function": nx.kamada_kawai_layout,
-        "args": {"weight": column_names.edge_size},
+        "args": {"weight": column_names.edge_weight},
     },
     "planar": {"function": nx.planar_layout, "args": {}},
     "random": {"function": nx.random_layout, "args": {}},
     "shell": {"function": nx.shell_layout, "args": {}},
     "spring": {
         "function": nx.spring_layout,
-        "args": {"weight": column_names.edge_size},
+        "args": {"weight": column_names.edge_weight, 'scale': 400},
     },
     "spectral": {"function": nx.spectral_layout, "args": {}},
     "spiral": {"function": nx.spiral_layout, "args": {}},

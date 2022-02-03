@@ -164,7 +164,7 @@ class GraphBuilder:
                         tweet_json = json.loads(tweet)
                         if i == 0:
                             self.most_recent_tweet = tweet_json["id"]
-                        self.extract_info_from_tweet(tweet_json, 0, snscrape_json_path)
+                        self.extract_info_from_tweet(tweet_json, snscrape_json_path)
             else:
                 search = self.create_search()
                 print(search)
@@ -240,7 +240,7 @@ class GraphBuilder:
                 self.edges,
                 source=column_names.edge_source,
                 target=column_names.edge_target,
-                edge_attr=column_names.edge_size,
+                edge_attr=column_names.edge_weight,
             )
             position_function = layout_functions[layout_algo]["function"]
             self.positions = position_function(

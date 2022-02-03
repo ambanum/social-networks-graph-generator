@@ -1,4 +1,5 @@
 import pandas as pd
+from pyparsing import col
 from graphgenerator.config import column_names
 
 
@@ -65,6 +66,22 @@ def concatenate_old_n_new_edges(input_graph_json, new_edges):
     return edges
 
 
+def calculate_edges_weight(edges):
+    """
+    Calculate edge weight based on node size from source and target
+    """
+    edges_size = edges[[column_names.edge_target, column_names.edge_size]].groupby(column_names.edge_target).agg(sum)
+    edges_size = edges_size.rename(columns={column_names.edge_size: "temp_size"})
+    edges = edges.merge(edges_size, how="left", left_on=column_names.edge_target, right_on=column_names.edge_target)
+    edges = edges.merge(edges_size, how="left", left_on=column_names.edge_source, right_on=column_names.edge_target)
+    for col in ['temp_size_x', 'temp_size_y']:
+        edges[col] = edges[col].fillna(0)
+    normalized_size = edges[column_names.edge_size]/edges[column_names.edge_size].max()
+    edges[column_names.edge_weight] =  (4*(1/(edges["temp_size_x"]+edges["temp_size_y"])) + normalized_size)/5
+    edges = edges.drop(['temp_size_x', 'temp_size_y'], axis = 1)
+    #edges[column_names.edge_weight] = edges[column_names.edge_size]
+    return edges
+
 def clean_edges(edges_list, limit_date, input_graph_json):
     """
     Transform list of edges into a clean dataframe aggregated at the edge level (connexion between two accounts) and
@@ -83,6 +100,8 @@ def clean_edges(edges_list, limit_date, input_graph_json):
     # merge with elder edges from input_graph_json
     if input_graph_json:
         edges = concatenate_old_n_new_edges(input_graph_json, edges)
+    #calculate edge weight
+    edges = calculate_edges_weight(edges)
     # create edge index
     edges = edges.reset_index().rename(columns={"index": column_names.edge_id})
     edges[column_names.edge_id] = "edge_" + edges[column_names.edge_id].astype(str)

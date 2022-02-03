@@ -3,7 +3,7 @@ from botfinder.bot_classifier import findbot_rawjson
 import json
 
 
-def compute_bot_score_from_user_info(user_info, compute_botscore=True):
+def compute_bot_score_from_user_info(user_info, compute_botscore=False):
     """
     Compute botscore using botfinder using user information
     the function findbot_rawjson from the package is used rather than the CLI
@@ -11,7 +11,7 @@ def compute_bot_score_from_user_info(user_info, compute_botscore=True):
     if compute_botscore:
         return json.loads(findbot_rawjson(json.dumps(user_info)))["botScore"]
     else:
-        return float("nan")
+        return 0 #float("nan")
 
 
 def return_type_source_tweet(tweet: dict):

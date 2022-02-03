@@ -10,6 +10,7 @@ edge_type = "type"
 edge_metadata = "metadata"
 edge_id = "id"
 edge_source_date = "source_date"
+edge_weight = "weight"
 
 node_id = "id"
 node_label = "label"

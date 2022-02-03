@@ -24,6 +24,8 @@ def merge_positions2nodes(position, nodes):
         )
     )
     nodes = nodes.merge(position_df, how="right", on=column_names.node_id)
+    nodes[column_names.node_pos_y] = nodes[column_names.node_pos_y] #*800/2
+    nodes[column_names.node_pos_x] = nodes[column_names.node_pos_x] #*800/2
     return nodes
 
 
