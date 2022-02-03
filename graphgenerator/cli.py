@@ -170,9 +170,9 @@ def main(
         print("Communities algo ended, time of execution is:", datetime.now() - start)
         if img_path != "no_img_file":
             NB.export_img_graph(img_path)
-        NB.export_json_output(json_path)
-        end = datetime.now()
-        print("The time of execution of the whole program is :", end - start)
+        execution_time = datetime.now()-start
+        NB.export_json_output(json_path, execution_time)
+        print("The time of execution of the whole program is :", execution_time)
 
 
 if __name__ == "__main__":

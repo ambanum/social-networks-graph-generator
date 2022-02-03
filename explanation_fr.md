@@ -98,6 +98,11 @@ Le champs `metadata` contient des informations additionnelles sur la recherche e
 - `last_collected_date`: date du dernier tweet collecté
 - `data_collection_date`: date de la data collection
 - `most_recent_tweet`: tweet id du premier tweet collecté
+- `execution_time`: temps d'execution du code
+- `layout_algo`: algorithme de layout utilisé
+- `community_algo`: algorithme de détection des communautés utilisé
+- `n_collected_tweets`: nombre de tweets collectés (utilisés pour la construction du graph)
+- `n_analysed_tweet`: nombre de tweets analysés
 
 ## Graph
 

@@ -58,6 +58,10 @@ class GraphBuilder:
         self.most_recent_tweet = ""
         self.data_collection_date = ""
         self.last_collected_date = ""
+        self.layout_algo = ""
+        self.community_algo = ""
+        self.n_valid_tweet = 0
+        self.n_analysed_tweets = 0
         self.data_collected = False
         self.data_cleaned = False
         self.graph_created = False
@@ -117,12 +121,11 @@ class GraphBuilder:
             search_final += f" since_id:{self.since_id}"
         return search_final
 
-    def extract_info_from_tweet(self, tweet, n_valid_tweet, from_snscrape):
+    def extract_info_from_tweet(self, tweet, from_snscrape):
         """
         Extract information from a tweet and add to edges and nodes files
             Parameters:
                 tweet (dict): a tweet in dictionnary format
-                n_valid_tweet (int): number of valid tweets that have been collected
                 from_snscrape (str): path to snscrape path if relevant
         """
         is_RT_or_quoted = return_type_source_tweet(tweet)
@@ -136,10 +139,9 @@ class GraphBuilder:
                         node_original(tweet, source_tweet)
                     )
                     self.nodes_original_done.append(source_tweet["id"])
-                n_valid_tweet += 1
+                self.n_valid_tweet += 1
             self.last_collected_tweet = tweet["id"]
             self.last_collected_date = tweet["date"]
-        return n_valid_tweet
 
     def collect_tweets(self, snscrape_json_path=None):
         """
@@ -166,15 +168,15 @@ class GraphBuilder:
             else:
                 search = self.create_search()
                 print(search)
-                n_valid_tweet = 0
                 for i, tweet in enumerate(sntwitter.TwitterSearchScraper(search).get_items()):
                     tweet_json = json.loads(tweet.json())
                     if i == 0:
                         self.most_recent_tweet = tweet_json["id"]
-                    n_valid_tweet = self.extract_info_from_tweet(tweet_json, n_valid_tweet, snscrape_json_path)
-                    if self.maxresults and n_valid_tweet >= self.maxresults:
+                    self.extract_info_from_tweet(tweet_json, snscrape_json_path)
+                    if self.maxresults and self.n_valid_tweet >= self.maxresults:
                         break
             self.data_collected = True
+            self.n_analysed_tweets = i
         else:
             raise Exception(
                 "Data has already been collected, rerun GaphBuilder class if you want to try with new"
@@ -232,6 +234,7 @@ class GraphBuilder:
                 layout_algo (str): algorithm to use to create graph layout
                 must be in ['circular', 'kamada_kawai', 'spring', 'random', 'spiral'])
         """
+        self.layout_algo = layout_algo
         if self.data_cleaned:
             self.G = nx.from_pandas_edgelist(
                 self.edges,
@@ -256,6 +259,7 @@ class GraphBuilder:
                 community_algo (str): algorithm to use to find communities in the graph
                 must be in ['greedy_modularity', 'asyn_lpa_communities', 'girvan_newman', 'label_propagation', 'louvain']
         """
+        self.community_algo = community_algo
         if self.graph_created:
             community_function = community_functions[community_algo]["function"]
             cleaning_function = community_functions[community_algo]["cleaning"]
@@ -293,17 +297,12 @@ class GraphBuilder:
                 "graph needs to be created thanks to .creat_graph() before using this command"
             )
 
-    def export_json_output(self, json_path="output.json"):
+    def return_metadata_json(self, execution_time):
         """
-        Create a clean json output containing the nodes, the edges and some other information (in metadata)
-            Parameters:
-                json_path (str): path where to export the json
+        Create metadata dictionnary to be included in final json to export
+            execution_time (datetime): execution time of the whole program 
         """
-        if self.communities_detected:
-            json_output = create_json_output(
-                self.nodes, self.edges, self.positions, self.communities
-            )
-            json_output["metadata"] = {
+        return {
                 column_names.metadata_search: self.search,
                 column_names.metadata_since: self.min_date,
                 column_names.metadata_type_search: self.type_search,
@@ -317,7 +316,25 @@ class GraphBuilder:
                     self.data_collection_date
                 ),
                 column_names.metadata_most_recent_tweet: str(self.most_recent_tweet),
-            }
+                column_names.metadata_execution_time: str(execution_time),
+                column_names.metadata_layout_algo: self.layout_algo,
+                column_names.metadata_community_algo: self.community_algo,
+                column_names.metadata_n_collected_tweets: self.n_valid_tweet,
+                column_names.metadata_n_analysed_tweets : self.n_analysed_tweets,
+            }    
+
+    def export_json_output(self, json_path="output.json", execution_time=float('nan')):
+        """
+        Create a clean json output containing the nodes, the edges and some other information (in metadata)
+            Parameters:
+                json_path (str): path where to export the json
+                execution_time (datetime): execution time of the whole program 
+        """
+        if self.communities_detected:
+            json_output = create_json_output(
+                self.nodes, self.edges, self.positions, self.communities
+            )
+            json_output["metadata"] = self.return_metadata_json(execution_time)
             with open(json_path, "w") as outfile:
                 json.dump(json_output, outfile)
         else:
