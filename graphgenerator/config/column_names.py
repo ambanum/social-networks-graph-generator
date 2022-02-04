@@ -42,7 +42,7 @@ metadata_execution_time = "execution_time"
 metadata_layout_algo = "layout_algo"
 metadata_community_algo = "community_algo"
 metadata_n_collected_tweets = "n_collected_tweets"
-metadata_n_analysed_tweets = "n_analysed_tweets"
+metadata_n_analysed_tweets = "n_analyzed_tweets"
 
 col_mapping_type_tweet = {
     node_url_tweet: "original",

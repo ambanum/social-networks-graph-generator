@@ -102,7 +102,7 @@ Le champs `metadata` contient des informations additionnelles sur la recherche e
 - `layout_algo`: algorithme de layout utilisé
 - `community_algo`: algorithme de détection des communautés utilisé
 - `n_collected_tweets`: nombre de tweets collectés (utilisés pour la construction du graph)
-- `n_analysed_tweet`: nombre de tweets analysés
+- `n_analyzed_tweet`: nombre de tweets analysés
 
 ## Graph
 
