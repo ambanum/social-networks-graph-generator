@@ -38,6 +38,11 @@ metadata_last_collected_tweet = "last_collected_tweet"
 metadata_last_collected_date = "last_collected_date"
 metadata_data_collection_date = "data_collection_date"
 metadata_most_recent_tweet = "most_recent_tweet"
+metadata_execution_time = "execution_time"
+metadata_layout_algo = "layout_algo"
+metadata_community_algo = "community_algo"
+metadata_n_collected_tweets = "n_collected_tweets"
+metadata_n_analysed_tweets = "n_analyzed_tweets"
 
 col_mapping_type_tweet = {
     node_url_tweet: "original",

@@ -98,6 +98,11 @@ The `metadata` field contains additional information about the search and the re
 - `last_collected_date`: date of the last collected tweet,
 - `data_collection_date`: date of data collection
 - `most_recent_tweet`: tweet id of the first collected tweet
+- `execution_time`: total execution time
+- `layout_algo`: algorithm used for layout
+- `community_algo`: algorithm used to detect communities
+- `n_collected_tweets`: number of collected tweets (that were used to build the graph)
+- `n_analyzed_tweet`: number of analysed tweets (some tweets are not retweeted or mentionned and not included in the graph)
 
 ## Graph
 
