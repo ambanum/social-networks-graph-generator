@@ -54,6 +54,7 @@ class GraphBuilder:
         self.nodes_original_done = []
         self.type_search = "include:nativeretweets"
         self.edges = []
+        self.edges_clean = []
         self.nodes = []
         self.G = []
         self.positions = []
@@ -70,6 +71,7 @@ class GraphBuilder:
         self.data_cleaned = False
         self.graph_created = False
         self.communities_detected = False
+        self.enough_data = True
 
     def get_valid_date(self, number_days=7):
         """
@@ -147,7 +149,18 @@ class GraphBuilder:
             self.last_collected_tweet = tweet["id"]
             self.last_collected_date = tweet["date"]
 
-    def collect_tweets(self, snscrape_json_path=None):
+    def save_batch(self, input_json, layout_algo, community_algo, img_path, json_path, execution_time):
+        """
+        """
+        self.data_collected = True
+        self.clean_nodes_edges(input_json)
+        self.create_graph(layout_algo)
+        self.find_communities(community_algo)
+        if img_path != "no_img_file":
+            self.export_img_graph(img_path)
+        self.export_json_output(json_path, execution_time)
+
+    def collect_tweets(self, snscrape_json_path=None, batch_size=0, **kwargs):
         """
         Collect and save tweets in nodes and edges files, for each tweet, the source tweet is also collected
         data collection stopped when their ist no longer tweet to collect or if the maximum number of tweets to collect
@@ -179,8 +192,17 @@ class GraphBuilder:
                     self.extract_info_from_tweet(tweet_json, snscrape_json_path)
                     if self.maxresults and self.n_valid_tweet >= self.maxresults:
                         break
+                    if batch_size>0 and self.n_valid_tweet%batch_size==0:
+                        self.save_batch(
+                            kwargs["input_json"], 
+                            kwargs["layout_algo"], 
+                            kwargs["community_algo"], 
+                            kwargs["img_path"], 
+                            kwargs["json_path"], 
+                            kwargs["execution_time"]
+                        )
+                    self.n_analysed_tweets = i
             self.data_collected = True
-            self.n_analysed_tweets = i
         else:
             raise Exception(
                 "Data has already been collected, rerun GaphBuilder class if you want to try with new"
@@ -198,34 +220,29 @@ class GraphBuilder:
         """
         if self.data_collected:
             if len(self.edges):
-                self.edges = clean_edges(
+                self.edges_clean = clean_edges(
                     self.edges, self.last_collected_date, input_graph_json
                 )
-                if len(self.edges) or input_graph_json:
+                if len(self.edges_clean) or input_graph_json:
                     self.nodes = concat_clean_nodes(
                         self.nodes_RT_quoted,
                         self.nodes_original,
                         self.last_collected_date,
                         input_graph_json,
                     )
-                    del self.nodes_original
-                    del self.nodes_RT_quoted
+                    #del self.nodes_original
+                    #del self.nodes_RT_quoted
                     self.data_cleaned = True
+                    self.enough_data = True
                 else:
                     if input_graph_json:
                         raise Exception("No new data to add to existing graph")
                     else:
-                        raise Exception(
-                            "No enough tweets found to build graph. Try using other parameters "
-                            "(for example decreasing the maximum number of retweets or extending the research window)"
-                        )
+                        self.enough_data = False
             elif input_graph_json and len(self.edges) == 0:
                 raise Exception("No new data to add to existing graph")
             else:
-                raise Exception(
-                    "No enough tweets found to build graph. Try using other parameters "
-                    "(for example decreasing the maximum number of retweets or extending the research window)"
-                )
+                self.enough_data = False
         else:
             raise Exception(
                 "Data has not yet been collected, run .collect_tweets() before"
@@ -239,22 +256,23 @@ class GraphBuilder:
                 must be in ['circular', 'kamada_kawai', 'spring', 'random', 'spiral'])
         """
         self.layout_algo = layout_algo
-        if self.data_cleaned:
-            self.G = nx.from_pandas_edgelist(
-                self.edges,
-                source=column_names.edge_source,
-                target=column_names.edge_target,
-                edge_attr=column_names.edge_size,
-            )
-            position_function = layout_functions[layout_algo]["function"]
-            self.positions = position_function(
-                self.G, dim=self.dim, **layout_functions[layout_algo]["args"]
-            )
-            self.graph_created = True
-        else:
-            raise Exception(
-                "data must be cleaned thanks to .clean_nodes_edges() before creating the graph"
-            )
+        if self.enough_data:
+            if self.data_cleaned:
+                self.G = nx.from_pandas_edgelist(
+                    self.edges_clean,
+                    source=column_names.edge_source,
+                    target=column_names.edge_target,
+                    edge_attr=column_names.edge_size,
+                )
+                position_function = layout_functions[layout_algo]["function"]
+                self.positions = position_function(
+                    self.G, dim=self.dim, **layout_functions[layout_algo]["args"]
+                )
+                self.graph_created = True
+            else:
+                raise Exception(
+                    "data must be cleaned thanks to .clean_nodes_edges() before creating the graph"
+                )
 
     def find_communities(self, community_algo="louvain"):
         """
@@ -264,18 +282,19 @@ class GraphBuilder:
                 must be in ['greedy_modularity', 'asyn_lpa_communities', 'girvan_newman', 'label_propagation', 'louvain']
         """
         self.community_algo = community_algo
-        if self.graph_created:
-            community_function = community_functions[community_algo]["function"]
-            cleaning_function = community_functions[community_algo]["cleaning"]
-            communities = community_function(
-                self.G, **community_functions[community_algo]["args"]
-            )
-            self.communities = cleaning_function(communities)
-            self.communities_detected = True
-        else:
-            raise Exception(
-                "graph needs to be created thanks to .creat_graph() before using this command"
-            )
+        if self.enough_data:
+            if self.graph_created:
+                community_function = community_functions[community_algo]["function"]
+                cleaning_function = community_functions[community_algo]["cleaning"]
+                communities = community_function(
+                    self.G, **community_functions[community_algo]["args"]
+                )
+                self.communities = cleaning_function(communities)
+                self.communities_detected = True
+            else:
+                raise Exception(
+                    "graph needs to be created thanks to .creat_graph() before using this command"
+                )
 
     def export_img_graph(self, img_path="Graph.png"):
         """
@@ -284,22 +303,23 @@ class GraphBuilder:
             Parameters:
                  img_path (str): path where to export img file of the graph
         """
-        if self.graph_created:
-            plt.figure(figsize=(30, 30))
-            nx.draw_networkx(
-                self.G,
-                pos=self.positions,
-                arrows=True,
-                with_labels=True,
-                font_size=5,
-                node_size=10,
-                alpha=0.5,
-            )
-            plt.savefig(img_path, format="PNG")
-        else:
-            raise Exception(
-                "graph needs to be created thanks to .creat_graph() before using this command"
-            )
+        if self.enough_data:
+            if self.graph_created:
+                plt.figure(figsize=(30, 30))
+                nx.draw_networkx(
+                    self.G,
+                    pos=self.positions,
+                    arrows=True,
+                    with_labels=True,
+                    font_size=5,
+                    node_size=10,
+                    alpha=0.5,
+                )
+                plt.savefig(img_path, format="PNG")
+            else:
+                raise Exception(
+                    "graph needs to be created thanks to .creat_graph() before using this command"
+                )
 
     def return_metadata_json(self, execution_time):
         """
@@ -334,15 +354,24 @@ class GraphBuilder:
                 json_path (str): path where to export the json
                 execution_time (datetime): execution time of the whole program 
         """
-        if self.communities_detected:
-            json_output = create_json_output(
-                self.nodes, self.edges, self.positions, self.communities, self.dim
-            )
+        if self.enough_data:
+            if self.communities_detected:
+                json_output = create_json_output(
+                    self.nodes, self.edges_clean, self.positions, self.communities, self.dim
+                )
+                json_output["metadata"] = self.return_metadata_json(execution_time)
+                with open(json_path, "w") as outfile:
+                    json.dump(json_output, outfile)
+            else:
+                raise Exception(
+                    "Before exporting json of the graph you must have run all functions to build it up:"
+                    "collect_tweets(), clean_nodes_edges(), create_graph() and find_communities()"
+                )
+        else:
+            json_output = {
+                "edges": [],
+                "nodes": []
+            }
             json_output["metadata"] = self.return_metadata_json(execution_time)
             with open(json_path, "w") as outfile:
                 json.dump(json_output, outfile)
-        else:
-            raise Exception(
-                "Before exporting json of the graph you must have run all functions to build it up:"
-                "collect_tweets(), clean_nodes_edges(), create_graph() and find_communities()"
-            )
