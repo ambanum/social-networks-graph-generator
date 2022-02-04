@@ -78,6 +78,7 @@ List of twitter accounts that are quoted or RT or quote or RT a tweet containing
 - `community_id`: id of the community detected thanks to the community algorithm
 - `x`: x coordinate on the graph
 - `y`: y coordinate on the graph
+- `z`: y coordinate on the graph (if 3D option has been selected)
 - `metadata`: additional information about the node:
   - `dates`: date of RTs, quotes or tweets from the account
   - `tweets`: list of urls of its tweets in ascending date order

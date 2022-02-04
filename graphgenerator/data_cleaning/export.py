@@ -8,19 +8,22 @@ from graphgenerator.config.config_export import (
 )
 
 
-def merge_positions2nodes(position, nodes):
+def merge_positions2nodes(position, nodes, dim):
     """
     Merge positions data calculated thanks to layout algo in GraphBuilder to node dataframe
     """
+    columns_mapping = {
+                    0: column_names.node_pos_x,
+                    1: column_names.node_pos_y,
+                    "index": column_names.node_id,
+                }
+    if dim == 3:
+        columns_mapping[2] = column_names.node_pos_z
     position_df = (
         pd.DataFrame(position)
         .T.reset_index()
         .rename(
-            columns={
-                0: column_names.node_pos_x,
-                1: column_names.node_pos_y,
-                "index": column_names.node_id,
-            }
+            columns=columns_mapping
         )
     )
     nodes = nodes.merge(position_df, how="right", on=column_names.node_id)
@@ -73,12 +76,12 @@ def merge_edges_size_date2nodes(edges, nodes):
     return nodes
 
 
-def create_json_output(nodes, edges, position, communities):
+def create_json_output(nodes, edges, position, communities, dim):
     """
     Create a json output with nodes and edges, merge positions and communities information at the user level
     """
     # merge nodes with other datasets
-    nodes = merge_positions2nodes(position, nodes)
+    nodes = merge_positions2nodes(position, nodes, dim)
     nodes = merge_communities2nodes(communities, nodes)
     nodes = merge_edges_size_date2nodes(edges, nodes)
     # create metadata field in nodes en edges dataframes
@@ -90,6 +93,6 @@ def create_json_output(nodes, edges, position, communities):
     )
     output = {
         "edges": edges[edges_columns_export].to_dict("records"),
-        "nodes": nodes[nodes_columns_export].to_dict("records"),
+        "nodes": nodes[nodes_columns_export[dim]].to_dict("records"),
     }
     return output

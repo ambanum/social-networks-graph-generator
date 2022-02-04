@@ -27,7 +27,7 @@ class GraphBuilder:
     accounts mentioning this topic
     """
 
-    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None):
+    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None, dim=2):
         """
         Init function of class GraphBuilder
             Parameters:
@@ -36,6 +36,7 @@ class GraphBuilder:
                 otherwise it will be changed to the date 7 days ago (we can't get retweets from more than 7 days ago)
                 minretweets (int): minimal number of retweets a tweet should have to be collected
                 maxresults (int): maximum number of RT and quotes to include in the graph
+                dim (int): dimension
         """
         self.search = search
         self.minretweets = int(minretweets)
@@ -44,6 +45,7 @@ class GraphBuilder:
         )
         self.since = since
         self.since_id = since_id
+        self.dim = dim
         self.get_valid_date()
         self.nodes_original = []
         self.nodes_RT_quoted = []
@@ -164,7 +166,7 @@ class GraphBuilder:
                         tweet_json = json.loads(tweet)
                         if i == 0:
                             self.most_recent_tweet = tweet_json["id"]
-                        self.extract_info_from_tweet(tweet_json, 0, snscrape_json_path)
+                        self.extract_info_from_tweet(tweet_json, snscrape_json_path)
             else:
                 search = self.create_search()
                 print(search)
@@ -244,7 +246,7 @@ class GraphBuilder:
             )
             position_function = layout_functions[layout_algo]["function"]
             self.positions = position_function(
-                self.G, **layout_functions[layout_algo]["args"]
+                self.G, dim=self.dim, **layout_functions[layout_algo]["args"]
             )
             self.graph_created = True
         else:
@@ -332,7 +334,7 @@ class GraphBuilder:
         """
         if self.communities_detected:
             json_output = create_json_output(
-                self.nodes, self.edges, self.positions, self.communities
+                self.nodes, self.edges, self.positions, self.communities, self.dim
             )
             json_output["metadata"] = self.return_metadata_json(execution_time)
             with open(json_path, "w") as outfile:
