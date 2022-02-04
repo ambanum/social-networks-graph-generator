@@ -114,7 +114,7 @@ Un fichier png peut être exporté en utilisant l'option `--img_graph` en ligne 
 En utilisant le code suivant dans le terminal:
 
 ```commandline
-graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png" --compute_botscore
 ```
 
 ou dans un script Python:
