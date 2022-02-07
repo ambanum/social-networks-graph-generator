@@ -44,6 +44,10 @@ En utilisant la commande `input_graph_json_path` de `graphgenerator`, vous pouve
 
 Le graph existant doit avoit été créé dans les septs jours précédents, sinon la commande ne fonctionnera pas (seul les retweets des 7 derniers jours sont accessibles).
 
+## Export par batch
+
+Si l'option `batch_size` est spécifiée et > 0 alors le graph est exporté tous les `batch_size` tweets collectés. Par défaut `batch_size` = 0, et dans ce cas le graph n'est exporté qu'une fois toutes les données collectées.
+
 # Sorties
 
 ## JSON
