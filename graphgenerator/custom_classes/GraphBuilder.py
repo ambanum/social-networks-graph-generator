@@ -268,7 +268,7 @@ class GraphBuilder:
                 )
                 position_function = layout_functions[layout_algo]["function"]
                 self.positions = position_function(
-                    self.G, dim=self.dim, k=1/sqrt(self.G.number_of_nodes()), scale=200 + log(self.G.number_of_nodes())*200, **layout_functions[layout_algo]["args"]
+                    self.G, dim=self.dim, k=1/sqrt(self.G.number_of_nodes()), scale=200 + log(self.G.number_of_nodes())*300, **layout_functions[layout_algo]["args"]
                 )
                 self.graph_created = True
             else:
