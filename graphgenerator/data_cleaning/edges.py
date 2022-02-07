@@ -66,23 +66,20 @@ def concatenate_old_n_new_edges(input_graph_json, new_edges):
     return edges
 
 
-def calculate_edges_weight(edges):
+def calculate_edges_weight(edges, node_size_weight=0.5):
     """
     Calculate edge weight based on node size from source and target
+        node_size_weight (float): weight of node size in the computation of the final weight
     """
-    weight = 'size'
-    if weight != 'size':
-        edges_size = edges[[column_names.edge_target, column_names.edge_size]].groupby(column_names.edge_target).agg(sum)
-        edges_size = edges_size.rename(columns={column_names.edge_size: "temp_size"})
-        edges = edges.merge(edges_size, how="left", left_on=column_names.edge_target, right_on=column_names.edge_target)
-        edges = edges.merge(edges_size, how="left", left_on=column_names.edge_source, right_on=column_names.edge_target)
-        for col in ['temp_size_x', 'temp_size_y']:
-            edges[col] = edges[col].fillna(0)
-        normalized_size = edges[column_names.edge_size]/edges[column_names.edge_size].max()
-        edges[column_names.edge_weight] =  (4*(1/(edges["temp_size_x"]+edges["temp_size_y"])) + normalized_size)/5
-        edges = edges.drop(['temp_size_x', 'temp_size_y'], axis = 1)
-    else:
-        edges[column_names.edge_weight] = edges[column_names.edge_size]
+    edges_size = edges[[column_names.edge_target, column_names.edge_size]].groupby(column_names.edge_target).agg(sum)
+    edges_size = edges_size.rename(columns={column_names.edge_size: "temp_size"})
+    edges = edges.merge(edges_size, how="left", left_on=column_names.edge_target, right_on=column_names.edge_target)
+    edges = edges.merge(edges_size, how="left", left_on=column_names.edge_source, right_on=column_names.edge_target)
+    for col in ['temp_size_x', 'temp_size_y']:
+        edges[col] = edges[col].fillna(0)
+    normalized_size = edges[column_names.edge_size]/edges[column_names.edge_size].max()
+    edges[column_names.edge_weight] =  node_size_weight*(1/(edges["temp_size_x"]+edges["temp_size_y"])) + (1-node_size_weight)*normalized_size
+    edges = edges.drop(['temp_size_x', 'temp_size_y'], axis = 1)
     return edges
 
 def clean_edges(edges_list, limit_date, input_graph_json):

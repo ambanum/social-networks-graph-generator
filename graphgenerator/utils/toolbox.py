@@ -16,7 +16,7 @@ layout_functions = {
     "shell": {"function": nx.shell_layout, "args": {}},
     "spring": {
         "function": nx.spring_layout,
-        "args": {"weight": column_names.edge_weight, 'scale': 1000},
+        "args": {"weight": column_names.edge_weight},
     },
     "spectral": {"function": nx.spectral_layout, "args": {}},
     "spiral": {"function": nx.spiral_layout, "args": {}},
