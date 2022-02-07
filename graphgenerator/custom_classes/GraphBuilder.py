@@ -169,6 +169,7 @@ class GraphBuilder:
                         if i == 0:
                             self.most_recent_tweet = tweet_json["id"]
                         self.extract_info_from_tweet(tweet_json, snscrape_json_path)
+                        self.n_analysed_tweets = i
             else:
                 search = self.create_search()
                 print(search)
@@ -179,8 +180,8 @@ class GraphBuilder:
                     self.extract_info_from_tweet(tweet_json, snscrape_json_path)
                     if self.maxresults and self.n_valid_tweet >= self.maxresults:
                         break
+                    self.n_analysed_tweets = i
             self.data_collected = True
-            self.n_analysed_tweets = i
         else:
             raise Exception(
                 "Data has already been collected, rerun GaphBuilder class if you want to try with new"
