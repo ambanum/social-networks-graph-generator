@@ -106,6 +106,7 @@ from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
 )
 @click.option("-v", "--version", is_flag=True, help="Get version of the package")
 @click.option("-b", "--compute_botscore", is_flag=True, help="Compute botscore for each user")
+@click.option("-bs", "--batch_size", default=0, help="Size of the batch, if set to 0, the programm uses a single batch")
 def main(
     version,
     search,
@@ -120,6 +121,7 @@ def main(
     input_graph_json_path,
     dim,
     compute_botscore,
+    batch_size
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
@@ -181,7 +183,17 @@ def main(
             dim=int(dim),
             compute_botscore=compute_botscore
         )
-        NB.collect_tweets(snscrape_json_path)
+        execution_time = datetime.now()-start
+        NB.collect_tweets(
+            snscrape_json_path=snscrape_json_path, 
+            batch_size=batch_size, 
+            input_json=input_json, 
+            layout_algo=layout_algo, 
+            community_algo=community_algo, 
+            img_path=img_path, 
+            json_path=json_path, 
+            execution_time=execution_time
+            )
         print("Data collection ended, time of execution is:", datetime.now() - start)
         NB.clean_nodes_edges(input_json)
         NB.create_graph(layout_algo)
