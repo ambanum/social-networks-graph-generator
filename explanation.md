@@ -44,6 +44,11 @@ Using the `input_graph_json_path` command of `graphgenerator`, you can enrich an
 
 Existing graph must have been created in the last 7 days, otherwise the command won't work as only Retwwets from the last 7 days can be collected.
 
+
+## Batch export
+
+If the `batch_size` option is specified and > 0 then the graph is exported all the `batch_size` tweets collected. By default `batch_size` = 0, and in this case the graph is only exported once all data has been collected.
+
 # Outputs
 
 ## JSON
