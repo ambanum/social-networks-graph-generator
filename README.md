@@ -68,7 +68,7 @@ To get the graph of a keyword or hashtag, you can do so (using cli command)
 ```
 # by search: this will use snscrape to get the data
 graphgenerator "#hashtag"
-graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --json_path="output.json" --compute_botscore
+graphgenerator "#hashtag" --maxresults=1000 --minretweets=1  --algo="spring" --json_path="output.json" --compute_botscore --batch_size=1000
 
 # if you want to visualise the graph, you can choose to export a png file of it 
 graphgenerator "#hashtag" --maxresults=1000 --minretweets=1 --algo="spring" --json_path="output.json" --img_path="graph.png"
