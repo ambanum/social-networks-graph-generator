@@ -11,7 +11,7 @@ def compute_bot_score_from_user_info(user_info, compute_botscore):
     if compute_botscore:
         return json.loads(findbot_rawjson(json.dumps(user_info)))["botScore"]
     else:
-        return 99999
+        return str(float("nan"))
 
 
 def return_type_source_tweet(tweet: dict):

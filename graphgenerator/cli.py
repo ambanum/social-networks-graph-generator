@@ -105,7 +105,7 @@ from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
     show_default=True,
 )
 @click.option("-v", "--version", is_flag=True, help="Get version of the package")
-@click.option("-b", "--compute_botscore", is_flag=True, help="Compute botscore at the account level")
+@click.option("-b", "--compute_botscore", is_flag=True, help="Compute botscore for each user")
 def main(
     version,
     search,
