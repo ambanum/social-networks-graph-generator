@@ -182,6 +182,7 @@ class GraphBuilder:
                         if i == 0:
                             self.most_recent_tweet = tweet_json["id"]
                         self.extract_info_from_tweet(tweet_json, snscrape_json_path)
+                        self.n_analysed_tweets = i
             else:
                 search = self.create_search()
                 print(search)
