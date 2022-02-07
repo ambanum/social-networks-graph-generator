@@ -27,7 +27,7 @@ class GraphBuilder:
     accounts mentioning this topic
     """
 
-    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None, dim=2):
+    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None, dim=2, compute_botscore=False):
         """
         Init function of class GraphBuilder
             Parameters:
@@ -37,6 +37,7 @@ class GraphBuilder:
                 minretweets (int): minimal number of retweets a tweet should have to be collected
                 maxresults (int): maximum number of RT and quotes to include in the graph
                 dim (int): dimension
+                compute_botscore (bool): should botscore at the account level be computed or not
         """
         self.search = search
         self.minretweets = int(minretweets)
@@ -46,6 +47,7 @@ class GraphBuilder:
         self.since = since
         self.since_id = since_id
         self.dim = dim
+        self.compute_botscore = compute_botscore
         self.get_valid_date()
         self.nodes_original = []
         self.nodes_RT_quoted = []
@@ -135,10 +137,10 @@ class GraphBuilder:
             source_tweet = return_source_tweet(tweet)
             if self.is_valid_tweet(tweet, source_tweet, from_snscrape):
                 self.edges.append(edge_from_tweet(tweet, source_tweet))
-                self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet))
+                self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet, self.compute_botscore))
                 if source_tweet["id"] not in self.nodes_original_done:
                     self.nodes_original.append(
-                        node_original(tweet, source_tweet)
+                        node_original(tweet, source_tweet, self.compute_botscore)
                     )
                     self.nodes_original_done.append(source_tweet["id"])
                 self.n_valid_tweet += 1

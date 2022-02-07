@@ -3,7 +3,7 @@ from botfinder.bot_classifier import findbot_rawjson
 import json
 
 
-def compute_bot_score_from_user_info(user_info, compute_botscore=True):
+def compute_bot_score_from_user_info(user_info, compute_botscore):
     """
     Compute botscore using botfinder using user information
     the function findbot_rawjson from the package is used rather than the CLI
@@ -11,7 +11,7 @@ def compute_bot_score_from_user_info(user_info, compute_botscore=True):
     if compute_botscore:
         return json.loads(findbot_rawjson(json.dumps(user_info)))["botScore"]
     else:
-        return float("nan")
+        return str(float("nan"))
 
 
 def return_type_source_tweet(tweet: dict):
@@ -61,7 +61,7 @@ def edge_from_tweet(tweet: dict, source_tweet: dict):
     }
 
 
-def node_RT_quoted(tweet: dict, source_tweet: dict):
+def node_RT_quoted(tweet: dict, source_tweet: dict, compute_botscore: bool):
     """
     Create dictionnary containing nodes (account) information regarding an account which has retweeted
     or quoted another tweet
@@ -83,11 +83,11 @@ def node_RT_quoted(tweet: dict, source_tweet: dict):
         column_names.node_rt_count: tweet["retweetCount"]
         if return_type_source_tweet(tweet) == "has quoted"
         else 0,
-        column_names.node_botscore: compute_bot_score_from_user_info(tweet["user"]),
+        column_names.node_botscore: compute_bot_score_from_user_info(tweet["user"], compute_botscore),
     }
 
 
-def node_original(tweet: dict, source_tweet: dict):
+def node_original(tweet: dict, source_tweet: dict, compute_botscore: bool):
     """
     Create dictionnary containing node (account) information regarding an account which has been retweeted
     or quoted in another tweet
@@ -102,7 +102,7 @@ def node_original(tweet: dict, source_tweet: dict):
         column_names.node_tweet_id: str(source_tweet["id"]),
         column_names.node_rt_count: tweet["retweetCount"],
         column_names.node_type_tweet: "original",
-        column_names.node_botscore: compute_bot_score_from_user_info(source_tweet["user"]),
+        column_names.node_botscore: compute_bot_score_from_user_info(source_tweet["user"], compute_botscore),
     }
 
 

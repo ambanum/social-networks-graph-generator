@@ -105,6 +105,7 @@ from graphgenerator.utils.tweet_extraction import return_last_tweet_snscrape
     show_default=True,
 )
 @click.option("-v", "--version", is_flag=True, help="Get version of the package")
+@click.option("-b", "--compute_botscore", is_flag=True, help="Compute botscore for each user")
 def main(
     version,
     search,
@@ -118,6 +119,7 @@ def main(
     community_algo,
     input_graph_json_path,
     dim,
+    compute_botscore,
 ):
     """
     Command line utility that export the json of a graph built from a hashtag or expression
@@ -177,6 +179,7 @@ def main(
             maxresults=maxresults,
             since_id=since_id,
             dim=int(dim),
+            compute_botscore=compute_botscore
         )
         NB.collect_tweets(snscrape_json_path)
         print("Data collection ended, time of execution is:", datetime.now() - start)
