@@ -78,6 +78,7 @@ List of twitter accounts that are quoted or RT or quote or RT a tweet containing
 - `community_id`: id of the community detected thanks to the community algorithm
 - `x`: x coordinate on the graph
 - `y`: y coordinate on the graph
+- `z`: y coordinate on the graph (if 3D option has been selected)
 - `metadata`: additional information about the node:
   - `dates`: date of RTs, quotes or tweets from the account
   - `tweets`: list of urls of its tweets in ascending date order
@@ -102,7 +103,7 @@ The `metadata` field contains additional information about the search and the re
 - `layout_algo`: algorithm used for layout
 - `community_algo`: algorithm used to detect communities
 - `n_collected_tweets`: number of collected tweets (that were used to build the graph)
-- `n_analysed_tweet`: number of analysed tweets (some tweets are not retweeted or mentionned and not included in the graph)
+- `n_analyzed_tweet`: number of analysed tweets (some tweets are not retweeted or mentionned and not included in the graph)
 
 ## Graph
 
@@ -114,7 +115,7 @@ A png file can be exported using the `--img_path` command line option (or the
 Using the following command in the terminal:
 
 ```commandline
-graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png?raw=true"
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png?raw=true" --compute_botscore
 ```
 
 or in your Python script

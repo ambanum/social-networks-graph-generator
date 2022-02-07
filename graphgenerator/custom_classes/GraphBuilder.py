@@ -28,7 +28,7 @@ class GraphBuilder:
     accounts mentioning this topic
     """
 
-    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None):
+    def __init__(self, search, since, minretweets=1, maxresults=None, since_id=None, dim=2, compute_botscore=False):
         """
         Init function of class GraphBuilder
             Parameters:
@@ -37,6 +37,8 @@ class GraphBuilder:
                 otherwise it will be changed to the date 7 days ago (we can't get retweets from more than 7 days ago)
                 minretweets (int): minimal number of retweets a tweet should have to be collected
                 maxresults (int): maximum number of RT and quotes to include in the graph
+                dim (int): dimension
+                compute_botscore (bool): should botscore at the account level be computed or not
         """
         self.search = search
         self.minretweets = int(minretweets)
@@ -45,6 +47,8 @@ class GraphBuilder:
         )
         self.since = since
         self.since_id = since_id
+        self.dim = dim
+        self.compute_botscore = compute_botscore
         self.get_valid_date()
         self.nodes_original = []
         self.nodes_RT_quoted = []
@@ -134,10 +138,10 @@ class GraphBuilder:
             source_tweet = return_source_tweet(tweet)
             if self.is_valid_tweet(tweet, source_tweet, from_snscrape):
                 self.edges.append(edge_from_tweet(tweet, source_tweet))
-                self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet))
+                self.nodes_RT_quoted.append(node_RT_quoted(tweet, source_tweet, self.compute_botscore))
                 if source_tweet["id"] not in self.nodes_original_done:
                     self.nodes_original.append(
-                        node_original(tweet, source_tweet)
+                        node_original(tweet, source_tweet, self.compute_botscore)
                     )
                     self.nodes_original_done.append(source_tweet["id"])
                 self.n_valid_tweet += 1
@@ -166,6 +170,7 @@ class GraphBuilder:
                         if i == 0:
                             self.most_recent_tweet = tweet_json["id"]
                         self.extract_info_from_tweet(tweet_json, snscrape_json_path)
+                        self.n_analysed_tweets = i
             else:
                 search = self.create_search()
                 print(search)
@@ -176,8 +181,8 @@ class GraphBuilder:
                     self.extract_info_from_tweet(tweet_json, snscrape_json_path)
                     if self.maxresults and self.n_valid_tweet >= self.maxresults:
                         break
+                    self.n_analysed_tweets = i
             self.data_collected = True
-            self.n_analysed_tweets = i
         else:
             raise Exception(
                 "Data has already been collected, rerun GaphBuilder class if you want to try with new"
@@ -245,7 +250,7 @@ class GraphBuilder:
             )
             position_function = layout_functions[layout_algo]["function"]
             self.positions = position_function(
-                self.G, k=1/sqrt(self.G.number_of_nodes()), scale=200 + log(self.G.number_of_nodes())*200, **layout_functions[layout_algo]["args"]
+                self.G, dim=self.dim, k=1/sqrt(self.G.number_of_nodes()), scale=200 + log(self.G.number_of_nodes())*200, **layout_functions[layout_algo]["args"]
             )
             self.graph_created = True
         else:
@@ -333,7 +338,7 @@ class GraphBuilder:
         """
         if self.communities_detected:
             json_output = create_json_output(
-                self.nodes, self.edges, self.positions, self.communities
+                self.nodes, self.edges, self.positions, self.communities, self.dim
             )
             json_output["metadata"] = self.return_metadata_json(execution_time)
             with open(json_path, "w") as outfile:

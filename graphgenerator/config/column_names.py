@@ -23,6 +23,7 @@ node_type_tweet = "from"
 node_rt_count = "retweetCount"
 node_pos_x = "x"
 node_pos_y = "y"
+node_pos_z = "z"
 node_metadata = "metadata"
 node_size = "size"
 node_source_date = "source_date"
@@ -43,7 +44,7 @@ metadata_execution_time = "execution_time"
 metadata_layout_algo = "layout_algo"
 metadata_community_algo = "community_algo"
 metadata_n_collected_tweets = "n_collected_tweets"
-metadata_n_analysed_tweets = "n_analysed_tweets"
+metadata_n_analysed_tweets = "n_analyzed_tweets"
 
 col_mapping_type_tweet = {
     node_url_tweet: "original",

@@ -78,6 +78,7 @@ Liste des comptes twitter qui sont mentionnés ou RT ou alors qui mentionnent ou
 - `community_id`: id du cluster détecté grâce à l'algo de communauté
 - `x`: coordonnées x du noeud dans le graph
 - `y`: coordonnées y du noeud dans le graph
+- `z`: coordonnées y du noeud dans le graph (si l'option 3D a été choisie)
 - `metadata`: informations additionnelles sur le noeud:
   - `dates`: date des RT, mentions ou tweets du compte
   - `tweets`: liste des urls de ses tweets par ordre croissant des dates
@@ -102,7 +103,7 @@ Le champs `metadata` contient des informations additionnelles sur la recherche e
 - `layout_algo`: algorithme de layout utilisé
 - `community_algo`: algorithme de détection des communautés utilisé
 - `n_collected_tweets`: nombre de tweets collectés (utilisés pour la construction du graph)
-- `n_analysed_tweet`: nombre de tweets analysés
+- `n_analyzed_tweet`: nombre de tweets analysés
 
 ## Graph
 
@@ -113,7 +114,7 @@ Un fichier png peut être exporté en utilisant l'option `--img_graph` en ligne 
 En utilisant le code suivant dans le terminal:
 
 ```commandline
-graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png"
+graphgenerator "#boycottfrance" --layout_algo "layout_algo" --since "2021-12-02" --minretweets 1 --maxresults 1000 --img_path "graph.png" --compute_botscore
 ```
 
 ou dans un script Python:

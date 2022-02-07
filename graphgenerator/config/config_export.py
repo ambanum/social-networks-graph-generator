@@ -27,13 +27,26 @@ edges_columns_export = [
     column_names.edge_metadata,
 ]
 
-nodes_columns_export = [
-    column_names.node_id,
-    column_names.node_label,
-    column_names.node_size,
-    column_names.node_type_tweet,
-    column_names.node_metadata,
-    column_names.node_pos_x,
-    column_names.node_pos_y,
-    column_names.nodes_community,
-]
+nodes_columns_export = {
+    2: [
+        column_names.node_id,
+        column_names.node_label,
+        column_names.node_size,
+        column_names.node_type_tweet,
+        column_names.node_metadata,
+        column_names.node_pos_x,
+        column_names.node_pos_y,
+        column_names.nodes_community,
+    ],
+    3:[
+        column_names.node_id,
+        column_names.node_label,
+        column_names.node_size,
+        column_names.node_type_tweet,
+        column_names.node_metadata,
+        column_names.node_pos_x,
+        column_names.node_pos_y,
+        column_names.node_pos_z,
+        column_names.nodes_community,
+    ]
+}
