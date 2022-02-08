@@ -4,7 +4,8 @@ import networkx as nx
 import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
 from dateutil import parser
-
+from math import sqrt
+from numpy import log
 
 from graphgenerator.data_cleaning.edges import clean_edges
 from graphgenerator.data_cleaning.nodes import concat_clean_nodes
@@ -267,7 +268,7 @@ class GraphBuilder:
                 )
                 position_function = layout_functions[layout_algo]["function"]
                 self.positions = position_function(
-                    self.G, dim=self.dim, **layout_functions[layout_algo]["args"]
+                    self.G, dim=self.dim, k=1/sqrt(self.G.number_of_nodes()), scale=200 + log(self.G.number_of_nodes())*300, **layout_functions[layout_algo]["args"]
                 )
                 self.graph_created = True
             else:
