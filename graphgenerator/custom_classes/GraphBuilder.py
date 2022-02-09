@@ -4,8 +4,7 @@ import networkx as nx
 import snscrape.modules.twitter as sntwitter
 import matplotlib.pyplot as plt
 from dateutil import parser
-from math import sqrt
-from numpy import log
+from math import sqrt, log
 
 from graphgenerator.data_cleaning.edges import clean_edges
 from graphgenerator.data_cleaning.nodes import concat_clean_nodes

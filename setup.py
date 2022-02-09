@@ -31,8 +31,7 @@ setuptools.setup(
         "python-louvain==0.15",
         "social-networks-bot-finder",
         "snscrape==0.4.3.20220106",
-        "scikit-learn==0.24.2",
-        "numpy==1.20.3"
+        "scikit-learn==0.24.2"
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",
