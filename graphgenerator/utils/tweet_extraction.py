@@ -1,5 +1,5 @@
 from graphgenerator.config import column_names
-#from botfinder.bot_classifier import findbot_rawjson
+from botfinder.bot_classifier import findbot_rawjson
 import json
 
 
@@ -9,8 +9,7 @@ def compute_bot_score_from_user_info(user_info, compute_botscore):
     the function findbot_rawjson from the package is used rather than the CLI
     """
     if compute_botscore:
-        #return json.loads(findbot_rawjson(json.dumps(user_info)))["botScore"]
-        return str(float("nan"))
+        return json.loads(findbot_rawjson(json.dumps(user_info)))["botScore"]
     else:
         return str(float("nan"))
 
