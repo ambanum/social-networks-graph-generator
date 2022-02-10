@@ -24,15 +24,15 @@ setuptools.setup(
     install_requires=[
         "setuptools-scm==6.3.2",
         "networkx==2.6.3",
-        "pandas==1.2.5",
-        "click==8.0.1",
+        "pandas==1.3.5",
+        "click==8.0.3",
         "pytz==2021.3",
         "matplotlib==3.5.0",
         "python-louvain==0.15",
-        "social-networks-bot-finder==1.2.2",
         "snscrape==0.4.3.20220106",
         "scikit-learn==0.24.2",
-        "numpy==1.21.2"
+        "social-networks-bot-finder==1.2.4",
+        "numpy==1.21.5"
     ],
     dependency_links=["git+https://github.com/JustAnotherArchivist/snscrape.git"],
     python_requires="~=3.8",
