@@ -25,7 +25,6 @@ setuptools.setup(
         "setuptools-scm==6.3.2",
         "networkx==2.6.3",
         "pandas==1.3.5",
-        "click==8.0.3",
         "pytz==2021.3",
         "matplotlib==3.5.0",
         "python-louvain==0.15",
