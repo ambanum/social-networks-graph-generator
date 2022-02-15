@@ -31,11 +31,11 @@ Plusieurs algorithmes permettent de calculer les coordonnées des noeuds d'un gr
 La commande `networkx` fournit de nombreuses possibilités de visualisations et une bonne partie sont disponibles dans Graphgenerator. Nous proposons d'utiliser par défaut l'algorithme spring ou [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) parcequ'ils fonctionnent très bien avec de larges réseaux (ce qui est notre cas).
 
 Les algorithmes de calcul du layout disponibles dans graphgenerator sont les suivants:
-- circular ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.circular_layout.html), [Wikipédia](https://en.wikipedia.org/wiki/Circular_layout))
-- Kamada Kawai ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.kamada_kawai_layout.html), [Wikipédia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing))
-- spring ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html))
-- random ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.random_layout.html), [Wikipédia](https://fr.wikipedia.org/wiki/Graphe_al%C3%A9atoire))
-- spiral ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spiral_layout.html))
+- Circular ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.circular_layout.html), [page Wikipédia](https://en.wikipedia.org/wiki/Circular_layout))
+- Kamada Kawai ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.kamada_kawai_layout.html), [page Wikipédia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing))
+- Spring ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html))
+- Random ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.random_layout.html), [page Wikipédia](https://fr.wikipedia.org/wiki/Graphe_al%C3%A9atoire))
+- Spiral ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spiral_layout.html))
 
 ## Communautés
 
@@ -48,9 +48,9 @@ Par défaut, nous avons choisi un algorithme qui n'est pas disponible dans Netwo
 Les algorithmes de détection de communautés disponibles dans graphgenerator son les suivants:
 - Greedy modularity ([doc](https://networkx.org/documentation/networkx-2.2/reference/algorithms/generated/networkx.algorithms.community.modularity_max.greedy_modularity_communities.html) )
 - Asynchronous Label Propagation ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.label_propagation.asyn_lpa_communities.html))
-- Girvan Newman ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.centrality.girvan_newman.html), [page wikipédia](https://en.wikipedia.org/wiki/Girvan%E2%80%93Newman_algorithm))
+- Girvan Newman ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.centrality.girvan_newman.html), [page Wikipédia](https://en.wikipedia.org/wiki/Girvan%E2%80%93Newman_algorithm))
 - Label propagation ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.label_propagation.label_propagation_communities.html))
-- Louvain ([doc](https://github.com/taynaud/python-louvain), [page wikipédia](https://fr.wikipedia.org/wiki/M%C3%A9thode_de_Louvain))
+- Louvain ([doc](https://github.com/taynaud/python-louvain), [page Wikipédia](https://fr.wikipedia.org/wiki/M%C3%A9thode_de_Louvain))
 
 ## Enrichir un graph existant
 
