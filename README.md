@@ -90,6 +90,14 @@ graphgenerator --input_graph_json_path=="input_from_graphgenerator.json" snscrap
 
 ```
 
+If using the option `snscrape_json_path` then the file used as an input for data should be in JSON Lines text format. Each line should contain a dictionary representing a tweet in a snscrape tweet format. Thus, it must contains the following fields:
+- "user" (User class from snscrape)
+- "date"
+- "url"
+- "id"
+- "retweetedTweet" (Tweet class from snscrape, thus it must contains the above fields)
+- "quotedTweet" (Tweet class from snscrape, thus it must contains the above fields)
+
 Or you can choose to load graphgenerator as a library and use GraphBuilder class directly in your Python script
 
 ```

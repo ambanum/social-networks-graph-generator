@@ -45,6 +45,7 @@ metadata_layout_algo = "layout_algo"
 metadata_community_algo = "community_algo"
 metadata_n_collected_tweets = "n_collected_tweets"
 metadata_n_analysed_tweets = "n_analyzed_tweets"
+metadata_status = "status"
 
 col_mapping_type_tweet = {
     node_url_tweet: "original",

@@ -30,6 +30,13 @@ ensure readability), to bring closer together the nodes that have many links bet
 
 `networkx` command line provides many visualization possibilities and many of them are available in Graphgenerator. We propose to use by default the spring or [Fruchterman-Reingold](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html) algorithm because they works very well with large networks (which is our case).
 
+The following layout algorithms are available in graphgenerator:
+- Circular ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.circular_layout.html), [Wikipédia page](https://en.wikipedia.org/wiki/Circular_layout))
+- Kamada Kawai ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.kamada_kawai_layout.html), [Wikipédia page](https://en.wikipedia.org/wiki/Force-directed_graph_drawing))
+- Spring ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html))
+- Random ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.random_layout.html), [Wikipédia page](https://en.wikipedia.org/wiki/Random_graph))
+- Spiral ([doc](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spiral_layout.html))
+
 ## Communities
 
 Graphgenerator also allows to identify clusters. They correspond to groups of accounts that interact a lot with each other.
@@ -37,6 +44,13 @@ Graphgenerator also allows to identify clusters. They correspond to groups of ac
 Again, Networkx provides a wide choice of algorythms for identifying these communities, most of which are available in Graphgenerator.
 
 By default, we have chosen an algorithm that is not available in Networkx but in an library. It is based on the "Leuven method". This method is particularly efficient for large networks.
+
+The following algorithms are available in Graphgenerator:
+- Greedy modularity ([doc](https://networkx.org/documentation/networkx-2.2/reference/algorithms/generated/networkx.algorithms.community.modularity_max.greedy_modularity_communities.html) )
+- Asynchronous Label Propagation ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.label_propagation.asyn_lpa_communities.html))
+- Girvan Newman ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.centrality.girvan_newman.html), [Wikipédia page](https://en.wikipedia.org/wiki/Girvan%E2%80%93Newman_algorithm))
+- Label propagation ([doc](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.label_propagation.label_propagation_communities.html))
+- Louvain ([doc](https://github.com/taynaud/python-louvain), [Wikipédia page](https://fr.wikipedia.org/wiki/M%C3%A9thode_de_Louvain))
 
 ## Enriching an existing graph
 
@@ -109,6 +123,7 @@ The `metadata` field contains additional information about the search and the re
 - `community_algo`: algorithm used to detect communities
 - `n_collected_tweets`: number of collected tweets (that were used to build the graph)
 - `n_analyzed_tweet`: number of analysed tweets (some tweets are not retweeted or mentionned and not included in the graph)
+- `status`: data collection status (can be "in progress"  if the `batch_size` option is used)
 
 ## Graph
 

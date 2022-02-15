@@ -72,6 +72,7 @@ class GraphBuilder:
         self.graph_created = False
         self.communities_detected = False
         self.enough_data = True
+        self.status = "data collection in progress"
 
     def get_valid_date(self, number_days=7):
         """
@@ -204,6 +205,7 @@ class GraphBuilder:
                         )
                     self.n_analysed_tweets = i
             self.data_collected = True
+            self.status = "data collection completed"
         else:
             raise Exception(
                 "Data has already been collected, rerun GaphBuilder class if you want to try with new"
@@ -346,6 +348,7 @@ class GraphBuilder:
                 column_names.metadata_community_algo: self.community_algo,
                 column_names.metadata_n_collected_tweets: self.n_valid_tweet,
                 column_names.metadata_n_analysed_tweets : self.n_analysed_tweets,
+                column_names.metadata_status : self.status,
             }    
 
     def export_json_output(self, json_path="output.json", execution_time=float('nan')):
