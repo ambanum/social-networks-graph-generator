@@ -72,7 +72,7 @@ class GraphBuilder:
         self.graph_created = False
         self.communities_detected = False
         self.enough_data = True
-        self.status = "data collection in progress"
+        self.status = "PROCESSING"
 
     def get_valid_date(self, number_days=7):
         """
@@ -205,10 +205,10 @@ class GraphBuilder:
                         )
                     self.n_analysed_tweets = i
             self.data_collected = True
-            self.status = "data collection completed"
+            self.status = "DONE"
         else:
             raise Exception(
-                "Data has already been collected, rerun GaphBuilder class if you want to try with new"
+                "Data has already been collected, rerun GraphBuilder class if you want to try with new"
                 "parameter"
             )
 
